@@ -10,64 +10,41 @@ for col in data.columns:
 
 ################### NA HANDLING ###########################
 
-### VISITOR_HIST_STARRATING
-# PROPORTION NAN
-len(data.visitor_hist_starrating.loc[data.visitor_hist_starrating.notna() == True]) / len(data.visitor_hist_starrating)
-visit_star_mask = data.visitor_hist_starrating.notna() == True
 
-# CORRLEATE WITH CLICK, BOOK, POSITION
-stats.pointbiserialr(data.visitor_hist_starrating.loc[data.visitor_hist_starrating.notna() == True], data.booking_bool[visit_star_mask])
-stats.pointbiserialr(data.visitor_hist_starrating.loc[data.visitor_hist_starrating.notna() == True], data.click_bool[visit_star_mask])
-stats.pearsonr(data.visitor_hist_starrating.loc[data.visitor_hist_starrating.notna() == True], data.position[visit_star_mask])
+def check_na(feature):
+    """
+    check correlation of feature with click, bool, position
+    :param feature: (str) column name of pandas df
+    :return: none
+    """
 
-# PLOT
-sns.scatterplot(data.visitor_hist_starrating.loc[data.visitor_hist_starrating.notna() == True], data.position[visit_star_mask], s=5)
-"""
-CORRS: no correlations with click, book or position
-PLOT: does not look promising
-SUGGESTION: exclude
-"""
-
-### PROP LOCATION SCORE 2
-# PROPORTION NAN
-len(data.prop_location_score2.loc[data.prop_location_score2.notna() == True]) / len(data.prop_location_score2)
-prop_score2_mask = data.prop_location_score2.notna() == True
-
-# CORRLEATE WITH CLICK, BOOK, POSITION
-stats.pointbiserialr(data.prop_location_score2.loc[data.prop_location_score2.notna() == True], data.booking_bool[prop_score2_mask])
-stats.pointbiserialr(data.prop_location_score2.loc[data.prop_location_score2.notna() == True], data.click_bool[prop_score2_mask])
-stats.pearsonr(data.prop_location_score2.loc[data.prop_location_score2.notna() == True], data.position[prop_score2_mask])
+    # PROPORTION NAN
+    mask = data[feature].notna()
+    len(data[feature].loc[mask]) / len(data[feature])
 
 
-# PLOT
-sns.scatterplot(data.prop_location_score2.loc[data.prop_location_score2.notna() == True], data.position[prop_score2_mask], s=5)
-sns.regplot(data.prop_location_score2.loc[data.prop_location_score2.notna() == True], data.position[prop_score2_mask],
-            marker='o', color='blue', scatter_kws={'s':2})
+    # CORRLEATE WITH CLICK, BOOK, POSITION
+    # >>>>>>>>>>>>>>>>>>>> CHECK TYPE OF FEATURE ?? or not
+    #if data[feature].dtype == "float64"
+    book_cor = stats.pointbiserialr(data[feature].loc[mask], data.booking_bool[mask])
+    click_cor = stats.pointbiserialr(data[feature].loc[mask], data.click_bool[mask])
+    pos_cor = stats.pearsonr(data[feature].loc[mask], data.position[mask])
 
-"""
-CORR: 
-- booking/click both < .1
-- position -.17
-SCATTER: confirms negative corr (?)
-5th place Kagge comp: impute with first quartile
-"""
-
-data.prop_location_score2.fillna(data.prop_location_score2.quantile(0.25), inplace=True)
+    print("Correlation with booking_bool: ", book_cor)
+    print("Correlation with click_bool: ", click_cor)
+    print("Correlation with position: ", pos_cor)
 
 
-### GROSS BOOKINGS USD
+    fig, axs = plt.subplots(1, 3)
+    sns.boxplot(data.click_bool[mask], data[feature].loc[mask], ax=axs[0])
+    axs[0].set_title('click_bool')
+    sns.boxplot(data.booking_bool[mask], data[feature].loc[mask], ax=axs[1])
+    axs[1].set_title('booking_bool')
+    ### SCATTER
+    #sns.scatterplot(data.position[mask], data[feature].loc[mask], s=5, ax=axs[2])
+    sns.regplot(data[feature].loc[mask], data.position[mask], marker='o', color='blue', scatter_kws={'s': 2})
+    axs[2].set_title('position')
 
 
-len(data.prop_location_score2.loc[data.prop_location_score2.notna() == True]) / len(data.prop_location_score2)
-prop_score2_mask = data.prop_location_score2.notna() == True
+check_na("prop_location_score2")
 
-# CORRLEATE WITH CLICK, BOOK, POSITION
-stats.pointbiserialr(data.prop_location_score2.loc[data.prop_location_score2.notna() == True], data.booking_bool[prop_score2_mask])
-stats.pointbiserialr(data.prop_location_score2.loc[data.prop_location_score2.notna() == True], data.click_bool[prop_score2_mask])
-stats.pearsonr(data.prop_location_score2.loc[data.prop_location_score2.notna() == True], data.position[prop_score2_mask])
-
-
-# PLOT
-sns.scatterplot(data.prop_location_score2.loc[data.prop_location_score2.notna() == True], data.position[prop_score2_mask], s=5)
-sns.regplot(data.prop_location_score2.loc[data.prop_location_score2.notna() == True], data.position[prop_score2_mask],
-            marker='o', color='blue', scatter_kws={'s':2})
