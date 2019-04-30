@@ -61,6 +61,7 @@ def check_na(feature):
 
 
         # FIND PLOTS
+        """
         fig, axs = plt.subplots(1, 3)
         sns.pointplot(data.click_bool[mask], data[feature].loc[mask], ax=axs[0])
         axs[0].set_title('click_bool')
@@ -68,8 +69,9 @@ def check_na(feature):
         axs[1].set_title('booking_bool')
         sns.boxplot(data[feature].loc[mask], data.position[mask], ax=axs[2])
         axs[2].set_title('position')
+        """
 
 
 
-check_na("click_bool")
+check_na("prop_location_score2")
 
