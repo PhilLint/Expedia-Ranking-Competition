@@ -8,13 +8,11 @@ data = pd.read_csv("training_set_VU_DM.csv", nrows=100000)
 for col in data.columns:
     print(col)
 
-################### NA HANDLING ###########################
-
 
 def check_na(feature):
     """
     check correlation of feature with click, bool, position
-    prints the 3 correlations and plots
+    prints the 3 correlations and plots/crosstabs, depending on feature type
     :param feature: (str) column name of pandas df
     :return: none
     """
@@ -44,7 +42,7 @@ def check_na(feature):
         axs[1].set_title('booking_bool')
         ### SCATTER
         #sns.scatterplot(data.position[mask], data[feature].loc[mask], s=5, ax=axs[2])
-        sns.regplot(data[feature].loc[mask], data.position[mask], ax=axs[2], marker='o', color='blue', scatter_kws={'s': 2})
+        sns.regplot(data.position[mask], data[feature].loc[mask], ax=axs[2], marker='o', color='blue', scatter_kws={'s': 2})
         axs[2].set_title('position')
 
     # FOR CATEGORICAL FEATURES CODED 0,1
@@ -59,19 +57,12 @@ def check_na(feature):
         print("Correlation with click_bool: ", click_cor)
         print("Correlation with position: ", pos_cor)
 
+        print("CROSSTABS\n")
 
-        # FIND PLOTS
-        """
-        fig, axs = plt.subplots(1, 3)
-        sns.pointplot(data.click_bool[mask], data[feature].loc[mask], ax=axs[0])
-        axs[0].set_title('click_bool')
-        sns.countplot(data.booking_bool[mask], data[feature].loc[mask], ax=axs[1])
-        axs[1].set_title('booking_bool')
-        sns.boxplot(data[feature].loc[mask], data.position[mask], ax=axs[2])
-        axs[2].set_title('position')
-        """
+        print(pd.crosstab(data.click_bool[mask], data[feature].loc[mask]))
+        print(pd.crosstab(data.booking_bool[mask], data[feature].loc[mask]))
+
+        sns.boxplot(data[feature].loc[mask], data.position[mask])
 
 
-
-check_na("prop_location_score2")
-
+check_na("visitor_hist_starrating")
