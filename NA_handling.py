@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
+import datetime as dt
 
 data = pd.read_csv("training_set_VU_DM.csv", nrows=100000)
 for col in data.columns:
@@ -46,7 +47,6 @@ def check_na(feature):
         axs[2].set_title('position')
 
     # FOR CATEGORICAL FEATURES CODED 0,1
-
     elif data[feature].dtype == "int64":
 
         book_cor = stats.pearsonr(data[feature].loc[mask], data.booking_bool[mask])
@@ -58,7 +58,6 @@ def check_na(feature):
         print("Correlation with position: ", pos_cor)
 
         print("CROSSTABS\n")
-
         print(pd.crosstab(data.click_bool[mask], data[feature].loc[mask]))
         print(pd.crosstab(data.booking_bool[mask], data[feature].loc[mask]))
 
@@ -66,3 +65,14 @@ def check_na(feature):
 
 
 check_na("visitor_hist_starrating")
+
+
+
+
+
+##test
+data.date_time = pd.to_datetime(data.date_time)
+data.month = data.date_time.dt.month
+data.month.value_counts().plot.bar()
+plt.gcf().autofmt_xdate()
+plt.show()
