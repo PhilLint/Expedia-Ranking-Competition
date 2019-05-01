@@ -23,8 +23,7 @@ def check_na(feature):
     prop_na = len(data[feature].loc[mask]) / len(data[feature])
     print("Proportion notna values: ", prop_na)
 
-
-    # CORRLEATE WITH CLICK, BOOK, POSITION
+    # CORRELATE WITH CLICK, BOOK, POSITION
     # FOR CONTINUOUS FEATURES
     if data[feature].dtype == "float64":
 
@@ -41,10 +40,10 @@ def check_na(feature):
         axs[0].set_title('click_bool')
         sns.boxplot(data.booking_bool[mask], data[feature].loc[mask], ax=axs[1])
         axs[1].set_title('booking_bool')
-        ### SCATTER
-        #sns.scatterplot(data.position[mask], data[feature].loc[mask], s=5, ax=axs[2])
         sns.regplot(data.position[mask], data[feature].loc[mask], ax=axs[2], marker='o', color='blue', scatter_kws={'s': 2})
         axs[2].set_title('position')
+        # SCATTER
+        # sns.scatterplot(data.position[mask], data[feature].loc[mask], s=5, ax=axs[2])
 
     # FOR CATEGORICAL FEATURES CODED 0,1
     elif data[feature].dtype == "int64":
@@ -63,16 +62,55 @@ def check_na(feature):
 
         sns.boxplot(data[feature].loc[mask], data.position[mask])
 
-
-check_na("visitor_hist_starrating")
-
-
+    else:
+        print("Unknown feature type.")
 
 
+def try_imputing(feature):
+    """
+    compare correlations with click_bool, booking_bool and position before imputing and imputing NaN
+    if numeric: mean, median, first and third quartile
+    if binary: mode
+    prints all possible correlations
+    :param feature: (str) column name of pandas df
+    :return: none
+    """
+    # CORRLEATE WITH CLICK, BOOK, POSITION
+    # FOR CONTINUOUS FEATURES
+    if data[feature].dtype == "float64":
 
-##test
-data.date_time = pd.to_datetime(data.date_time)
-data.month = data.date_time.dt.month
-data.month.value_counts().plot.bar()
-plt.gcf().autofmt_xdate()
-plt.show()
+        feature_imp_mean = data[feature].fillna(data[feature].mean())
+        feature_imp_med = data[feature].fillna(data[feature].median())
+        feature_imp_firstq = data[feature].fillna(data[feature].quantile(q=0.25))
+        feature_imp_thirdq = data[feature].fillna(data[feature].quantile(q=0.75))
+
+        methods = [(feature_imp_mean, "mean"), (feature_imp_med, "median"),
+                   (feature_imp_firstq, "first quartile"), (feature_imp_thirdq, "third quartile")]
+
+        for imp_method, name in methods:
+            book_cor = stats.pointbiserialr(imp_method, data.booking_bool)
+            click_cor = stats.pointbiserialr(imp_method, data.click_bool)
+            pos_cor = stats.pearsonr(imp_method, data.position)
+
+            print("Imputed with %s. Correlation with booking_bool: %s" % (name, book_cor))
+            print("Imputed with %s. Correlation with click_bool: %s" % (name, click_cor))
+            print("Imputed with %s. Correlation with position: %s" % (name, pos_cor))
+            print("\n")
+
+    # FOR CAT FEATURES
+    elif data[feature].dtype == "int64":
+        imp_mode = data[feature].fillna(data[feature].mode())
+
+        book_cor = stats.pearsonr(imp_mode, data.booking_bool)
+        click_cor = stats.pearsonr(imp_mode, data.click_bool)
+        pos_cor = stats.pointbiserialr(imp_mode, data.position)
+
+        print("Imputed with mode. Correlation with booking_bool: ", book_cor)
+        print("Imputed with mode. Correlation with click_bool: ", click_cor)
+        print("Imputed with mode. Correlation with position:", pos_cor)
+
+    else:
+        print("Unknown feature type.")
+
+
+try_imputing("random_bool")
