@@ -6,8 +6,22 @@ from math import log, floor
 import seaborn
 rnd.seed(42)
 
-training = pd.read_csv('./data/training_set_VU_DM.csv', nrows = 100000)
-test = pd.read_csv('./data/test_set_VU_DM.csv', nrows = 100000)
+def import_data(filename, nrows=None):
+    """
+    import either train or test set (onl nrows, if None then all)
+    :param path: to csv file
+    :param nrows: how many instances should be looked at
+    :return: od dataframe
+    """
+    if nrows is None:
+        data = pd.read_csv(str('./data/') + filename)
+    else:
+        data= pd.read_csv(str('./data/') + filename, nrows=nrows)
+    return data
+
+
+training = import_data('training_set_VU_DM.csv', nrows = 100000)
+test = import_data('test_set_VU_DM.csv', nrows = 100000)
 
 plt.figure(figsize=(12,8))
 ax = seaborn.countplot(x="random_bool", data=training)
@@ -62,10 +76,11 @@ def oversample(data, max_rank=None, print_desc=False):
     if print_desc:
         print("Number of observations: " + str(len(new_training)) + " ||  number of bookings: " + str(number_books) +
               " ||  number of clicks: " + str(number_clicks))
-    return data, number_book, number_clicks
+    id_list = [book_ids, click_ids, filtered_nothing_ids]
+    return data, number_book, number_clicks, id_list
 
-new_training, number_books, number_clicks = oversample(training)
-# plot poisition to frequency booked (1) or not booked (0)
+new_training, number_books, number_clicks, id_list = oversample(training)
+# plot position to frequency booked (1) or not booked (0)
 new_training['position'].hist(by=new_training['booking_bool'])
 plt.show()
 # now with max_rank
