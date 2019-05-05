@@ -17,6 +17,9 @@ def import_data(filename, nrows=None):
         data = pd.read_csv(str('./data/') + filename)
     else:
         data= pd.read_csv(str('./data/') + filename, nrows=nrows)
+    # remove time stamp of query
+    data = data.loc[:, data.columns != "date_time"]
+
     return data
 
 
@@ -84,6 +87,6 @@ new_training, number_books, number_clicks, id_list = oversample(training)
 new_training['position'].hist(by=new_training['booking_bool'])
 plt.show()
 # now with max_rank
-new_training, number_books, number_clicks = oversample(training, 15)
+new_training, number_books, number_clicks, id_list = oversample(training, 15)
 new_training['position'].hist(by=new_training['booking_bool'])
 plt.show()
