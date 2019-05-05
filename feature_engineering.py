@@ -14,7 +14,7 @@ df = training
 dtypeCount =[df.iloc[:,i].apply(type).value_counts() for i in range(df.shape[1])]
 dtypeCount
 
-def clip_outliers(data, feature_name, upper_quantile=True):
+def clip_outliers(data, feature_name, upper_quantile=True, manual_upper=None):
     """
     Handle outlier by discarding bottom and upper 5% quantile. The new value is the
     0.05 or 0.95 quantile value.
@@ -31,8 +31,8 @@ def clip_outliers(data, feature_name, upper_quantile=True):
         upper_bound = data[feature_name].quantile(.975)
         data.loc[data[feature_name] > upper_bound, feature_name] = upper_bound
     else:
-        # alternative clip at 5000 a night
-        data.loc[data[feature_name] > 5000, feature_name] = 5000
+        # alternative clip at manual_upper a night (price for isntance 5000)
+        data.loc[data[feature_name] > manual_upper, feature_name] = manual_upper
 
 
 # demo
@@ -211,8 +211,6 @@ def diff_prop_cust_rating(data):
     # new feature is difference of visitors mean purchase history price and current usd price
     data['mean_star_rating_diff'] = data['visitor_hist_starrating'] - data['prop_starrating']
     return data['mean_star_rating_diff']
-
-
 
 
 numeric_feature_list = ['srch_length_of_stay', 'srch_booking_window', \
