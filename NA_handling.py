@@ -178,6 +178,9 @@ def outlier_plot(data, features=[], to_save=False, name=None):
     sns.set(style="ticks")
     ax = sns.boxplot(y="variable", x="value", orient="h", data=pd.melt(num_df))
     ax.set_xscale("log")
+    fig = plt.gcf()
+    fig.set_size_inches(9,6)
+    ax.set_position([.25, .15, .70, .75])
     if to_save:
         plt.savefig(name)
     else:
@@ -221,7 +224,7 @@ if __name__ == "__main__":
     #            "comp3_rate_percent_diff", "comp4_rate_percent_diff", "comp5_rate_percent_diff", "comp6_rate_percent_diff",
     #            "comp7_rate_percent_diff", "comp8_rate_percent_diff",]
 
-    outlier_plot(data, to_save=True, name="outlier_plot.png")
+    outlier_plot(data, to_save=True, name="outlier_plot_wide.png")
 
-    competition_plot(data, to_save=True, name="competition_plot.png")
+    #competition_plot(data, to_save=True, name="competition_plot.png")
 
