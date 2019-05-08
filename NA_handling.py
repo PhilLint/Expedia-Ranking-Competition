@@ -115,8 +115,6 @@ def try_imputing(data, feature):
         print("Unknown feature type.")
 
 
-
-
 def scatters(data, feature_1, feature_2):
 
     """
@@ -132,6 +130,8 @@ def scatters(data, feature_1, feature_2):
     mask_2 = data[feature_2].notna()
     subset_1 = data[feature_1].loc[mask_1].loc[mask_2]
     subset_2 = data[feature_2].loc[mask_1].loc[mask_2]
+    print(subset_1)
+    print(subset_2)
 
     cor = stats.pearsonr(subset_1, subset_2 )
     print(f"Correlation {feature_1},{feature_2}: {cor}")
@@ -153,7 +153,7 @@ def save_corr_mat(data):
     corr_mat.to_csv("corr_mat.csv")
 
 
-def outlier_plot(data, features = [], to_save=False, name=None):
+def outlier_plot(data, features=[], to_save=False, name=None):
     """
     save/show boxplot for numeric features
     :param data: pandas df
@@ -167,7 +167,9 @@ def outlier_plot(data, features = [], to_save=False, name=None):
     plt.clf()
 
     if not features:
-        cols_exlude = ["srch_id", "date_time", "site_id", "prop_id", "visitor_location_country_id", "prop_country_id"]
+        cols_exlude = ["srch_id", "date_time", "site_id", "prop_id", "visitor_location_country_id", "prop_country_id",
+                       "comp1_rate", "comp2_rate", "comp3_rate", "comp4_rate", "comp5_rate", "comp6_rate", "comp7_rate", "comp8_rate",
+                       "comp1_inv", "comp2_inv", "comp3_inv", "comp4_inv", "comp5_inv","comp6_inv","comp7_inv", "comp8_inv"]
         for col in data.columns:
             if data[col].dtype == "float64" and col not in cols_exlude:
                 features.append(col)
@@ -182,13 +184,44 @@ def outlier_plot(data, features = [], to_save=False, name=None):
         plt.show()
 
 
+def competition_plot(data, to_save=False, name=None):
+    """
+    combine all competitor rate information into one feature
+    plot click and bool proportions depending on competition
+    :param data: pandas df
+    :param to_save: bool
+    :param name: name of plot if to_save=True
+    :return: none
+    """
+
+    competition = data[["comp1_rate", "comp2_rate", "comp3_rate", "comp4_rate", "comp5_rate", "comp6_rate", "comp7_rate", "comp8_rate"]]
+    user_beh = data[["booking_bool", "click_bool"]]
+    user_beh["comp_rate"] = [1 if row > 0 else row for row in competition.sum(axis=1)]
+    user_beh["comp_rate"] = [-1 if row < 0 else user_beh["comp_rate"].loc[idx] for idx,row in enumerate(competition.sum(axis=1))]
+
+    melted = pd.melt(user_beh, id_vars="comp_rate", value_vars=["click_bool", "booking_bool"])
+
+    plt.clf()
+    ax = sns.barplot(x="comp_rate", y="value", hue="variable", data=melted, capsize=.15, palette="deep")
+    ax.set(xticklabels=["More expensive", "Same Price", "Cheaper"])
+    ax.set(ylabel="Proportion clicked/booked")
+    ax.set(xlabel=[])
+    if to_save:
+        plt.savefig(name)
+    else:
+        plt.show()
+
+
 if __name__ == "__main__":
 
-    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv", nrows=1_000_000)
+    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv")
 
 
-    features = ["gross_bookings_usd", "price_usd", "prop_log_historical_price", "comp1_rate_percent_diff", "comp2_rate_percent_diff",
-                "comp3_rate_percent_diff", "comp4_rate_percent_diff", "comp5_rate_percent_diff", "comp6_rate_percent_diff",
-                "comp7_rate_percent_diff", "comp8_rate_percent_diff",]
+    #features = ["gross_bookings_usd", "price_usd", "prop_log_historical_price", "comp1_rate_percent_diff", "comp2_rate_percent_diff",
+    #            "comp3_rate_percent_diff", "comp4_rate_percent_diff", "comp5_rate_percent_diff", "comp6_rate_percent_diff",
+    #            "comp7_rate_percent_diff", "comp8_rate_percent_diff",]
 
-    outlier_plot(data, features, to_save=True, name="outlier_plot.png")
+    outlier_plot(data, to_save=True, name="outlier_plot.png")
+
+    competition_plot(data, to_save=True, name="competition_plot.png")
+
