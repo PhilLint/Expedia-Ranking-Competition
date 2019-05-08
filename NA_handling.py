@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 import datetime as dt
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
 
 
 def check_na(data, feature):
@@ -226,3 +229,14 @@ if __name__ == "__main__":
     #outlier_plot(data, to_save=True, name="outlier_plot_wide.png")
     #competition_plot(data, to_save=True, name="competition_plot.png")
 
+    data = data.loc[:, data.columns != "date_time"]
+    x = data[["prop_starrating", "prop_location_score1", "prop_brand_bool", "price_usd", "promotion_flag", "prop_log_historical_price",
+              "srch_length_of_stay", "srch_booking_window", "srch_adults_count", "srch_children_count", "srch_room_count", "srch_saturday_night_bool",
+              "random_bool", "prop_review_score"]]
+    y = data["booking_bool"]
+
+    X_train, X_test, y_train, y_test = train_test_split(x,y,test_size=0.3)
+    regressor = LogisticRegression()
+    selector = RFE(regressor, n_features_to_select=8)
+    selector = selector.fit(X_train,y_train)
+    selector.ranking_
