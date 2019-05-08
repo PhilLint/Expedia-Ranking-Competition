@@ -205,7 +205,7 @@ def competition_plot(data, to_save=False, name=None):
     melted = pd.melt(user_beh, id_vars="comp_rate", value_vars=["click_bool", "booking_bool"])
 
     plt.clf()
-    ax = sns.barplot(x="comp_rate", y="value", hue="variable", data=melted, capsize=.15, palette="deep")
+    ax = sns.barplot(x="comp_rate", y="value", hue="variable", data=melted, palette="deep")
     ax.set(xticklabels=["More expensive", "Same Price", "Cheaper"])
     ax.set(ylabel="Proportion clicked/booked")
     ax.set(xlabel=[])
@@ -217,14 +217,12 @@ def competition_plot(data, to_save=False, name=None):
 
 if __name__ == "__main__":
 
-    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv")
+    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv", nrows=100_000)
 
 
     #features = ["gross_bookings_usd", "price_usd", "prop_log_historical_price", "comp1_rate_percent_diff", "comp2_rate_percent_diff",
     #            "comp3_rate_percent_diff", "comp4_rate_percent_diff", "comp5_rate_percent_diff", "comp6_rate_percent_diff",
     #            "comp7_rate_percent_diff", "comp8_rate_percent_diff",]
-
-    outlier_plot(data, to_save=True, name="outlier_plot_wide.png")
-
+    #outlier_plot(data, to_save=True, name="outlier_plot_wide.png")
     #competition_plot(data, to_save=True, name="competition_plot.png")
 
