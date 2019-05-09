@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from data_import import oversample
 from sklearn.ensemble import RandomForestClassifier
-
+from feature_selection import forest_feat_select
 
 if __name__ == "__main__":
 
@@ -27,6 +27,8 @@ if __name__ == "__main__":
 
     y = new_data["booking_bool"]
 
+
+    forest_feat_select(x,y, 100)
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
 
 
@@ -38,7 +40,9 @@ if __name__ == "__main__":
 
 
     regressor.fit(X_train, y_train)
+
     rf.fit(X_train, y_train)
+    rf.feature_importances_
     prediction = regressor.predict(X_test)
     prediction_rf = rf.predict(X_test)
     print("accuracy score", accuracy_score(y_test, prediction))
