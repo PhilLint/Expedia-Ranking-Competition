@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5bb38305-64f8-4f92-9587-987dd8d34dd7" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book_position_maxrank.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/book_position_random_choice.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/feature_engineering.py" beforeDir="false" afterPath="$PROJECT_DIR$/feature_engineering.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -15,7 +18,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/data_import.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-934">
+            <state relative-caret-position="68">
               <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
@@ -27,8 +30,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/feature_engineering.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="151">
-              <caret line="281" column="53" lean-forward="true" selection-start-line="281" selection-start-column="53" selection-end-line="281" selection-end-column="53" />
+            <state relative-caret-position="391">
+              <caret line="158" lean-forward="true" selection-start-line="156" selection-start-column="3" selection-end-line="158" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -39,7 +42,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/NA_handling.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1190">
+            <state>
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -50,7 +53,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/exploration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="481">
+            <state relative-caret-position="782">
               <caret line="53" selection-start-line="53" selection-end-line="53" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
@@ -148,16 +151,20 @@
       <workItem from="1556973037623" duration="3600000" />
       <workItem from="1556983663146" duration="494000" />
       <workItem from="1557044514122" duration="19678000" />
+      <workItem from="1557082814377" duration="600000" />
+      <workItem from="1557240011827" duration="4035000" />
+      <workItem from="1557305267527" duration="3785000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="46715000" />
+    <option name="totallyTimeSpent" value="55135000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-6" y="-6" width="1444" height="1013" extended-state="6" />
+    <frame x="-6" y="-6" width="1450" height="1013" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18470418" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.077586204" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -176,7 +183,7 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info active="true" anchor="right" id="SciView" order="3" visible="true" weight="0.09235209" />
+      <window_info active="true" anchor="right" id="SciView" order="3" visible="true" weight="0.25215518" />
       <window_info anchor="right" id="Database" order="4" />
     </layout>
   </component>
@@ -185,10 +192,10 @@
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py" />
-    <entry file="file://$PROJECT_DIR$/exploration.py">
+    <entry file="file://$PROJECT_DIR$/data_import.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="481">
-          <caret line="53" selection-start-line="53" selection-end-line="53" />
+        <state relative-caret-position="68">
+          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
@@ -197,17 +204,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/NA_handling.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1190">
+        <state>
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data_import.py">
+    <entry file="file://$PROJECT_DIR$/exploration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-934">
-          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
+        <state relative-caret-position="782">
+          <caret line="53" selection-start-line="53" selection-end-line="53" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
@@ -216,8 +223,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/feature_engineering.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="151">
-          <caret line="281" column="53" lean-forward="true" selection-start-line="281" selection-start-column="53" selection-end-line="281" selection-end-column="53" />
+        <state relative-caret-position="391">
+          <caret line="158" lean-forward="true" selection-start-line="156" selection-start-column="3" selection-end-line="158" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
