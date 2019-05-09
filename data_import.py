@@ -23,15 +23,6 @@ def import_data(filename, nrows=None):
     return data
 
 
-training = import_data('training_set_VU_DM.csv', nrows = 100000)
-test = import_data('test_set_VU_DM.csv', nrows = 100000)
-
-plt.figure(figsize=(12,8))
-ax = seaborn.countplot(x="random_bool", data=training)
-plt.title('')
-plt.xlabel('Number of Axes')
-plt.show()
-
 def filter_nothing_instances(data, nothing_ids=None, max_rank=None):
     """
     For neither clicked nor booked either choose randomly a smaller number of instances, or
@@ -82,11 +73,22 @@ def oversample(data, max_rank=None, print_desc=False):
     id_list = [book_ids, click_ids, filtered_nothing_ids]
     return data, number_book, number_clicks, id_list
 
-new_training, number_books, number_clicks, id_list = oversample(training)
-# plot position to frequency booked (1) or not booked (0)
-new_training['position'].hist(by=new_training['booking_bool'])
-plt.show()
-# now with max_rank
-new_training, number_books, number_clicks, id_list = oversample(training, 15)
-new_training['position'].hist(by=new_training['booking_bool'])
-plt.show()
+
+if __name__ == "__main__":
+    training = import_data('training_set_VU_DM.csv', nrows=100000)
+    test = import_data('test_set_VU_DM.csv', nrows=100000)
+
+    plt.figure(figsize=(12, 8))
+    ax = seaborn.countplot(x="random_bool", data=training)
+    plt.title('')
+    plt.xlabel('Number of Axes')
+    plt.show()
+
+    new_training, number_books, number_clicks, id_list = oversample(training)
+    # plot position to frequency booked (1) or not booked (0)
+    new_training['position'].hist(by=new_training['booking_bool'])
+    plt.show()
+    # now with max_rank
+    new_training, number_books, number_clicks, id_list = oversample(training, 15)
+    new_training['position'].hist(by=new_training['booking_bool'])
+    plt.show()

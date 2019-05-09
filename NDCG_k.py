@@ -45,9 +45,11 @@ def ndcg_at_k(r, k):
 
 def calculate_score(submission, y_test):
     """
+    RUNTIME 100_000 rows: approx. 5 mins
+
     returns average ndcg score over all queries for a submission in the required format
-    :param submission: submission of ranked hotel properties given a srch_id
-    :param y_test: test data
+    :param submission: submission of ranked hotel properties given a srch_id (pandas df)
+    :param y_test: test data (pandas df)
     :return: score and altered submission df
     """
 
@@ -71,13 +73,9 @@ def calculate_score(submission, y_test):
     return score
 
 
-
-
-
-
 if __name__ == "__main__":
 
-    sub = pd.read_csv("submission_sample.csv", nrows=50)
-    y_test = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv", nrows=50)
+    sub = pd.read_csv("submission_sample.csv", nrows=100_000)
+    y_test = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv", nrows=100_000)
 
     print(calculate_score(sub, y_test))
