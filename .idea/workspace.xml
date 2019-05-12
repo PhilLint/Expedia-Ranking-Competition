@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="5bb38305-64f8-4f92-9587-987dd8d34dd7" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/book_position_maxrank.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/book_position_random_choice.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/feature_engineering.py" beforeDir="false" afterPath="$PROJECT_DIR$/feature_engineering.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -30,10 +28,35 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/feature_engineering.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="158" lean-forward="true" selection-start-line="156" selection-start-column="3" selection-end-line="158" />
+            <state relative-caret-position="51">
+              <caret line="288" column="26" lean-forward="true" selection-start-line="288" selection-start-column="26" selection-end-line="288" selection-end-column="26" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
+                <element signature="e#3087#3719#0" />
+                <element signature="e#3829#4294#0" />
+                <element signature="e#4359#5450#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/NDCG_k.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-852">
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/model_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -71,6 +94,11 @@
       </list>
     </option>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>new_tra</find>
+    </findStrings>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -85,16 +113,17 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-6" />
-    <option name="y" value="-6" />
-    <option name="width" value="762" />
-    <option name="height" value="966" />
+    <option name="x" value="-4" />
+    <option name="y" value="-4" />
+    <option name="width" value="382" />
+    <option name="height" value="484" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -111,7 +140,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -154,17 +182,19 @@
       <workItem from="1557082814377" duration="600000" />
       <workItem from="1557240011827" duration="4035000" />
       <workItem from="1557305267527" duration="3785000" />
+      <workItem from="1557390986682" duration="4042000" />
+      <workItem from="1557420772571" duration="418000" />
+      <workItem from="1557657659277" duration="3851000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="55135000" />
+    <option name="totallyTimeSpent" value="63446000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-6" y="-6" width="1450" height="1013" extended-state="6" />
-    <editor active="true" />
+    <frame x="-6" y="-6" width="1441" height="1013" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.077586204" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13376717" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -179,11 +209,11 @@
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.3295583" />
-      <window_info anchor="bottom" id="Python Console" order="12" visible="true" weight="0.27066818" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="12" visible="true" weight="0.45979616" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info active="true" anchor="right" id="SciView" order="3" visible="true" weight="0.25215518" />
+      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.1945047" />
       <window_info anchor="right" id="Database" order="4" />
     </layout>
   </component>
@@ -221,12 +251,33 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/NDCG_k.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-852">
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/feature_engineering.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="158" lean-forward="true" selection-start-line="156" selection-start-column="3" selection-end-line="158" />
+        <state relative-caret-position="51">
+          <caret line="288" column="26" lean-forward="true" selection-start-line="288" selection-start-column="26" selection-end-line="288" selection-end-column="26" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
+            <element signature="e#3087#3719#0" />
+            <element signature="e#3829#4294#0" />
+            <element signature="e#4359#5450#0" />
           </folding>
         </state>
       </provider>
