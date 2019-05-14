@@ -2,7 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5bb38305-64f8-4f92-9587-987dd8d34dd7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NA_handling_log.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NDCG_k.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feature_engineering.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/book_position_maxrank.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/book_position_random_choice.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/outlier_plot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Expedia-Ranking-Competition.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Expedia-Ranking-Competition.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NA_handling.py" beforeDir="false" afterPath="$PROJECT_DIR$/NA_handling.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_import.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_import.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/exploration.py" beforeDir="false" afterPath="$PROJECT_DIR$/exploration.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/submission_sample.csv" beforeDir="false" afterPath="$PROJECT_DIR$/submission_sample.csv" afterDir="false" />
     </list>
@@ -43,27 +53,12 @@
     </session>
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/data_import.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="16" lean-forward="true" selection-start-line="11" selection-end-line="16" />
-              <folding>
-                <element signature="e#0#19#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
+    <leaf>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/exploration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="201">
-              <caret line="109" column="74" lean-forward="true" selection-start-line="30" selection-end-line="109" selection-end-column="74" />
-              <folding>
-                <element signature="e#0#19#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="85">
+              <caret line="5" selection-start-line="5" selection-end-line="5" />
             </state>
           </provider>
         </entry>
@@ -154,7 +149,7 @@
     <option name="totallyTimeSpent" value="10225000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1295" height="695" extended-state="7" />
+    <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25596184" />
@@ -192,19 +187,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
           <caret line="16" lean-forward="true" selection-start-line="11" selection-end-line="16" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/exploration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="201">
-          <caret line="109" column="74" lean-forward="true" selection-start-line="30" selection-end-line="109" selection-end-column="74" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="85">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
         </state>
       </provider>
     </entry>
