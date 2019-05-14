@@ -36,24 +36,9 @@ def clip_outliers(data, feature_name, upper_quantile=True, manual_upper=None):
 
 
 # demo
+new_training = training
 new_training['price_usd'].describe()
 clip_outliers(new_training, "price_usd", upper_quantile=True)
-
-# def get_taxes(data):
-#     """
-#     Some countries have taxes on the prices
-#     :param data:
-#     :return:
-#     """
-#     # gross booking price
-#     corr_data = data[data['gross_bookings_usd'].notnull()]
-#     # tax = gross - (nights*price)
-#     # add tax as new feature
-#     corr_data.loc[:,'tax'] = corr_data['gross_bookings_usd'] - (corr_data['price_usd'] * corr_data['srch_length_of_stay'])
-#     #
-#     corr_data[corr_data['tax'] > 0].groupby('prop_country_id').mean()['tax'].sort_values(ascending=False)
-#
-#     return corr_data
 
 def create_target_score(data, id_list, weight_rank=False):
     """
@@ -78,7 +63,7 @@ def create_target_score(data, id_list, weight_rank=False):
     return data
 
 # demo
-data_with_target = create_target_score(new_training, id_list, weight_rank=True)
+#data_with_target = create_target_score(new_training, id_list, weight_rank=True)
 
 def create_label(data, three_classes=False):
     """
@@ -99,176 +84,6 @@ def create_label(data, three_classes=False):
 #demo
 data_with_target = create_label(training)
 
-## Preprocessing and feature generating functions
-def standardize_per_country(data, feature_name):
-    """
-    Normalize feature_name by the same feature for the instances of the same
-    country.
-    :param data: pd dataframe
-    :param feature_name: feature to be standardized per country
-    :return: feature vector with newly standardized values
-    """
-    # group by country and then apply standardization to that subset
-    standardized_feature = data[feature_name].groupby(data['prop_country_id']).apply(lambda x: (x - x.mean()) / x.std())
-    return standardized_feature
-
-def standardize_feature(data, feature_name):
-    """
-    Standardize one feature
-    :param data: pd dataframe
-    :param feature_name: feature to be standardized
-    :return:
-    """
-    # difference of feature the mean and divided by the standard deviation
-    processed_feature = data[feature_name].apply(lambda x: (x - x.mean()) / x.std())
-    return  processed_feature
-
-def normalize_feature(data, feature_name):
-    """
-    Normalize one feature (between 0 and 1)
-    :param data: pd dataframe
-    :param feature_name: feature to be standardized
-    :return:
-    """
-    # difference of feature the min and divided by max - min (if the same add 1 to overcome numerical
-    # trouble
-    processed_feature = data[feature_name].apply(lambda x: (x - min(x))/(max(x) - min(x))+1)
-    return  processed_feature
-
-def log_feature(data, feature_name):
-    """
-    Log transformation of feature.
-    :param data:
-    :param feature_name:
-    :return: log transformed feature
-    """
-    # for numerical reasons: add 1 to avoid log(0)
-    processed_feature = data[feature_name].apply(lambda x: log(x+1))
-    return  processed_feature
-
-def mean_med_std_feature(data, feature_name, type):
-    """
-    Create mean vector for feature feature_mean
-    :param data:
-    :param feature_name:
-    :return:
-    """
-    if type == "mean":
-        # get mean of feature
-        feature_mean = data[feature_name].mean()
-
-    return feature_mean
-
-def perform_preprocessing(data, feature_name, type):
-    """
-    Filter the type of preprocessing and apply to feature
-    :param data: pd dataframe
-    :param feature_name: feature to be preprocessed
-    :param type: norm/lognorm/stand/log
-    :return:
-    """
-    if type == "stand":
-        processed_feature = standardize_feature(data, feature_name)
-    elif type == "norm":
-        processed_feature = normalize_feature(data, feature_name)
-    elif type == "lognorm":
-        tmp_log = log_feature(data, feature_name)
-        processed_feature = normalize_feature(tmp_log, feature_name)
-    elif type == "log":
-        processed_feature = log_feature(data, feature_name)
-    elif type == "mean":
-        processed_feature = log_feature(data, feature_name)
-    elif type == "median":
-        processed_feature = log_feature(data, feature_name)
-    elif type == "std":
-        processed_feature = log_feature(data, feature_name)
-
-    return processed_feature
-
-def preprocess_feature_per_group(data, feature_name, group_by=None, type):
-    """
-    Preprocess (standardize; log-normalize) features
-    :param data: pd dataframe
-    :param feature_name: name of feature to be preprocessed
-    :param group_by: variable to group by (standardize variable by search_id for instance)
-    :param type: type of preprocessing: stand / log / norm / lognorm
-    :return: preprocessed feature vector
-    """
-    # if no grouping variable then decide for one type of preprocessing
-    if group_by == None:
-        processed_feature = perform_preprocessing(data, feature_name, type)
-    # if there is grouping variable perform group subset first then apply type of preprocessing
-    elif group_by is not None:
-        tmp_data = data.groupby(data[feature_name])
-        processed_feature = perform_preprocessing(tmp_data, feature_name, type)
-    return processed_feature
-
-def create_difference_feature(data, feature1, feature2, group_by=None):
-    """
-    Perform difference between two features as new feature
-    :param data:
-    :param feature1:
-    :param feature2:
-    :return:
-    """
-    if group_by == None:
-        difference_feature = data[feature1] - data[feature2]
-    elif group_by is not None:
-        tmp_data = data.groupby(data[group_by])
-        difference_feature = data[feature1] - data[feature2]
-
-    return difference_feature
-
-    # log(x+1) for numerical reasons
-    # temporary log vector
-    tmp_log = data[feature_name].apply(lambda x: log(x + 1))
-    if search_id:
-        # normalize by each srch_id
-        log_norm_feature = tmp_log.groupby(dataset['srch_id']).apply(lambda x: (x - x.mean()) / x.std())
-    else:
-        # without grouping by search_id
-        log_norm_feature = tmp_log.apply(lambda x: (x - x.mean()) / x.std())
-
-    return log_norm_feature
-
-
-
-
-
-
-def log_standardize_per_srch_id(data, feature_name, search_id=True):
-    """
-    Logarithm of feature as a preprocessing measure.
-    :param data: pd dataframe
-    :param feature_name: feature to be log transformed.
-    :param search_id: boolean if only lognormalization or also on search_id shall be performed
-    :return: feature vector with new logarithm values
-    """
-    # log(x+1) for numerical reasons
-    # temporary log vector
-    tmp_log = data[feature_name].apply(lambda x: log(x+1))
-    if search_id:
-        #normalize by each srch_id
-        log_norm_feature = tmp_log.groupby(data['srch_id']).apply(lambda x: (x-x.mean())/x.std())
-    else:
-        # without grouping by search_id
-        log_norm_feature = tmp_log.apply(lambda x: (x-x.mean())/x.std())
-
-    return log_norm_feature
-
-def loc_score2_log_price(data):
-    """
-    Create feature: prop_location_score2 over the log normalized price per search id.
-    :param data: pd dataframe
-    :return: new feature vector
-    """
-    # get the log standardized adjusted by search id prices
-    log_standardized_price = log_standardize_per_srch_id(data, 'price_usd')
-    # normalize per search id
-    log_normalized_price= log_standardized_price.groupby(data['srch_id']).apply(lambda x: (x - min(x))/(max(x) - min(x))+1)
-    # return location score2 / log_normalized prices per search id
-    return data['prop_location_score2'].fillna(0) / log_normalized_price
-
 def simple_imputation(data, feature_name, type='mean'):
     """
     Impute NaN values with mean or median of vector
@@ -285,8 +100,6 @@ def simple_imputation(data, feature_name, type='mean'):
         imp_val = data[feature_name].median()
     data.loc[missing_ids, feature_name] = imp_val
 
-
-
 def numerical_imputation(data, feature_name, type='mean'):
     """
     Impute a categorial or numerical mssing variable with predictions coming from
@@ -299,6 +112,7 @@ def numerical_imputation(data, feature_name, type='mean'):
         missing_ids = data.loc[data[feature_name].isna(),:].index.values
         not_missing_ids = data.loc[~data[feature_name].isna(),:].index.values
         # get target array
+        data = data.dropna()
         y = np.array(data.loc[not_missing_ids, feature_name])
         # get feature array
         X = np.array(data.loc[not_missing_ids, data.columns != feature_name])
@@ -314,36 +128,150 @@ def numerical_imputation(data, feature_name, type='mean'):
         # apply simple imputation of type
         simple_imputation(data, feature_name, type=type)
 
-# difference between mean purchase history and price
-def diff_mean_history_to_price(data):
+def standardize_feature(data, feature_name, group_by=None):
     """
-    Creates feature which is the difference between the mean purchase history of a user
-    and the current price of the instance.
+    Standardize one feature either by all instances or grouped variable
     :param data: pd dataframe
-    :return: new feature vector
+    :param feature_name: feature to be standardized
+    :return:
     """
-    # new feature is difference of visitors mean purchase history price and current usd price
-    data['mean_price_hist_diff'] = data['visitor_hist_adr_usd'] - data['price_usd']
-    return data['mean_price_hist_diff']
+    if group_by is not None:
+        standardized_feature = data[feature_name].groupby(data[group_by]).apply(lambda x: (x - x.mean()) / x.std())
+    else:
+        # difference of feature the mean and divided by the standard deviation
+        standardized_feature = data[feature_name].apply(lambda x: (x - x.mean()) / x.std())
+    return standardized_feature
 
-def diff_prop_cust_rating(data):
+def normalize_feature(data, feature_name, group_by=None):
     """
-    Create feature which is the difference between the mean str rating a customer gave in the past
-    and the current property rating of a hotel.
+    Normalize one feature (between 0 and 1)
     :param data: pd dataframe
-    :return: new feature vector
+    :param feature_name: feature to be standardized
+    :return:
     """
-    # new feature is difference of visitors mean purchase history price and current usd price
-    data['mean_star_rating_diff'] = data['visitor_hist_starrating'] - data['prop_starrating']
-    return data['mean_star_rating_diff']
+    if group_by is not None:
+        normalized_feature = data[feature_name].groupby(data[group_by]).apply(lambda x: (x - min(x))/(max(x) - min(x))+1)
+    else:
+        # difference of feature the min and divided by max - min (if the same add 1 to overcome numerical
+        # trouble
+        normalized_feature = data[feature_name].apply(lambda x: (x - min(x))/(max(x) - min(x))+1)
+    return normalized_feature
 
+def log_feature(data, feature_name, group_by=None):
+    """
+    Log transformation of feature.
+    :param data:
+    :param feature_name:
+    :return: log transformed feature
+    """
+    if group_by is not None:
+        log_feature = data[feature_name].groupby(data[group_by]).apply(lambda x: log(x+1))
+    else:
+        # for numerical reasons: add 1 to avoid log(0)
+        log_feature = data[feature_name].apply(lambda x: log(x+1))
+    return log_feature
+
+def mean_med_std_feature(data, feature_name, type, group_by=None):
+    """
+    Create mean vector for feature feature_mean
+    :param data:
+    :param feature_name:
+    :return: vector with values that are obtained
+    """
+    if group_by is not None:
+        if type == "mean":
+            # get mean of feature
+            processed_feature = data.groupby([group_by])[feature_name].transform(lambda x: x.mean())
+        elif type == "median":
+            # get median of feature
+            processed_feature = data.groupby([group_by])[feature_name].transform(lambda x: x.median())
+        elif type == "std":
+            # get standard deviation of feature
+            processed_feature = data.groupby([group_by])[feature_name].transform(lambda x: x.std())
+    else:
+        if type == "mean":
+            # get mean of feature
+            processed_feature = data[feature_name].mean()
+        elif type == "median":
+            # get median of feature
+            processed_feature = data[feature_name].median()
+        elif type == "std":
+            # get standard deviation of feature
+            processed_feature = data[feature_name].std()
+        # large vector for all values
+        processed_feature = [processed_feature] * len(data[feature_name])
+
+    return processed_feature
+
+
+data = training
+feature_name = "price_usd"
+group_by = "srch_id"
+
+def create_difference_feature(data, feature1, feature2, group_by=None):
+    """
+    Perform difference between two features as new feature
+    :param data:
+    :param feature1:
+    :param feature2:
+    :return:
+    """
+    if group_by is not None:
+        tmp_data = data.groupby(data[group_by])
+        difference_feature = tmp_data[feature1] - tmp_data[feature2]
+    else:
+        difference_feature = data[feature1] - data[feature2]
+
+    return difference_feature
+
+def perform_preprocessing(data, feature_name, type, group_by=None):
+    """
+    Filter the type of preprocessing and apply to feature
+    :param data: pd dataframe
+    :param feature_name: feature to be preprocessed
+    :param type: norm/lognorm/stand/log
+    :return:
+    """
+
+    if type == "stand":
+        processed_feature = standardize_feature(data, feature_name, group_by)
+    elif type == "norm":
+        processed_feature = normalize_feature(data, feature_name, group_by)
+    elif type == "lognorm":
+        tmp_log = log_feature(data, feature_name)
+        data.loc[:, "tmp_log"] = tmp_log
+        processed_feature = normalize_feature(data, "tmp_log", group_by)
+    elif type == "logstand":
+        tmp_log = log_feature(data, feature_name)
+        data.loc[:, "tmp_log"] = tmp_log
+        processed_feature = standardize_feature(data, "tmp_log", group_by)
+    elif type == "log":
+        processed_feature = log_feature(data, feature_name, group_by)
+    elif type == "mean":
+        processed_feature = mean_med_std_feature(data, feature_name, "mean", group_by=group_by)
+    elif type == "median":
+        processed_feature = mean_med_std_feature(data, feature_name, "median", group_by)
+    elif type == "std":
+        processed_feature = mean_med_std_feature(data, feature_name, "std", group_by)
+
+    return processed_feature
+
+# demo: produce lognormalized price_usd per search_id vector
+perform_preprocessing(data, "price_usd", group_by="srch_id", type="lognorm")
+# mean price per search id
+perform_preprocessing(data, "price_usd", group_by="srch_id", type="mean")
+
+# perform feature extraction / generate all features we want to generate
+# add them to training and test dataset
+# preprocess all variables
 
 numeric_feature_list = ['srch_length_of_stay', 'srch_booking_window', \
         'srch_adults_count', 'srch_children_count', 'prop_id', 'click_bool', 'booking_bool', \
         'prop_location_score2' ]
+
 categorial_feature_list = ['srch_id', 'promotion_flag']
 
-def extract_train_features(data, numeric_feature_list, categorial_feature_list):
+def extract_train_features(data, numeric_feature_list, categorial_feature_list, target="book"):
     """
     Extract the traning features from the data which already incorporates the target
     as either label or score.
@@ -424,3 +352,27 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_regression
 X, y = make_regression(n_features=4, n_informative=2,random_state=0, shuffle=False)
 data = data.loc[:, data.columns != "date_time"]
+
+# def get_taxes(data):
+#     """
+#     Some countries have taxes on the prices
+#     :param data:
+#     :return:
+#     """
+#     # gross booking price
+#     corr_data = data[data['gross_bookings_usd'].notnull()]
+#     # tax = gross - (nights*price)
+#     # add tax as new feature
+#     corr_data.loc[:,'tax'] = corr_data['gross_bookings_usd'] - (corr_data['price_usd'] * corr_data['srch_length_of_stay'])
+#     #
+#     corr_data[corr_data['tax'] > 0].groupby('prop_country_id').mean()['tax'].sort_values(ascending=False)
+#
+#     return corr_data
+
+
+
+
+
+
+
+
