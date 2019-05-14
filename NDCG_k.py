@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import os
 
 def dcg_at_k(r, k):
     """Score is discounted cumulative gain (dcg)
@@ -76,6 +76,6 @@ def calculate_score(submission, y_test):
 if __name__ == "__main__":
 
     sub = pd.read_csv("submission_sample.csv", nrows=100_000)
-    y_test = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv", nrows=100_000)
+    y_test = pd.read_csv("training_set_VU_DM.csv", nrows=100_000)
 
     print(calculate_score(sub, y_test))
