@@ -40,22 +40,6 @@ new_training = training
 new_training['price_usd'].describe()
 clip_outliers(new_training, "price_usd", upper_quantile=True)
 
-# def get_taxes(data):
-#     """
-#     Some countries have taxes on the prices
-#     :param data:
-#     :return:
-#     """
-#     # gross booking price
-#     corr_data = data[data['gross_bookings_usd'].notnull()]
-#     # tax = gross - (nights*price)
-#     # add tax as new feature
-#     corr_data.loc[:,'tax'] = corr_data['gross_bookings_usd'] - (corr_data['price_usd'] * corr_data['srch_length_of_stay'])
-#     #
-#     corr_data[corr_data['tax'] > 0].groupby('prop_country_id').mean()['tax'].sort_values(ascending=False)
-#
-#     return corr_data
-
 def create_target_score(data, id_list, weight_rank=False):
     """
     Create target variable as numerical value: 5 booked; 1 clicked; 0 nothing
@@ -128,6 +112,7 @@ def numerical_imputation(data, feature_name, type='mean'):
         missing_ids = data.loc[data[feature_name].isna(),:].index.values
         not_missing_ids = data.loc[~data[feature_name].isna(),:].index.values
         # get target array
+        data = data.dropna()
         y = np.array(data.loc[not_missing_ids, feature_name])
         # get feature array
         X = np.array(data.loc[not_missing_ids, data.columns != feature_name])
@@ -143,7 +128,6 @@ def numerical_imputation(data, feature_name, type='mean'):
         # apply simple imputation of type
         simple_imputation(data, feature_name, type=type)
 
-
 def standardize_feature(data, feature_name, group_by=None):
     """
     Standardize one feature either by all instances or grouped variable
@@ -157,7 +141,6 @@ def standardize_feature(data, feature_name, group_by=None):
         # difference of feature the mean and divided by the standard deviation
         standardized_feature = data[feature_name].apply(lambda x: (x - x.mean()) / x.std())
     return standardized_feature
-
 
 def normalize_feature(data, feature_name, group_by=None):
     """
@@ -256,12 +239,12 @@ def perform_preprocessing(data, feature_name, type, group_by=None):
         processed_feature = normalize_feature(data, feature_name, group_by)
     elif type == "lognorm":
         tmp_log = log_feature(data, feature_name)
-        data.loc[:, feature_name] = tmp_log
-        processed_feature = normalize_feature(data, feature_name, group_by)
+        data.loc[:, "tmp_log"] = tmp_log
+        processed_feature = normalize_feature(data, "tmp_log", group_by)
     elif type == "logstand":
         tmp_log = log_feature(data, feature_name)
-        data.loc[:, feature_name] = tmp_log
-        processed_feature = standardize_feature(data, feature_name, group_by)
+        data.loc[:, "tmp_log"] = tmp_log
+        processed_feature = standardize_feature(data, "tmp_log", group_by)
     elif type == "log":
         processed_feature = log_feature(data, feature_name, group_by)
     elif type == "mean":
@@ -273,68 +256,22 @@ def perform_preprocessing(data, feature_name, type, group_by=None):
 
     return processed_feature
 
-def preprocess_feature_per_group(data, feature_name, type, group_by=None,):
-    """
-    Preprocess (standardize; log-normalize) features
-    :param data: pd dataframe
-    :param feature_name: name of feature to be preprocessed
-    :param group_by: variable to group by (standardize variable by search_id for instance)
-    :param type: type of preprocessing: stand / log / norm / lognorm
-    :return: preprocessed feature vector
-    """
-    processed_feature = []
-    # if no grouping variable then decide for one type of preprocessing
-    processed_feature = perform_preprocessing(data, feature_name, type, group_by)
-    return processed_feature
-
 # demo: produce lognormalized price_usd per search_id vector
-preprocess_feature_per_group(data, "price_usd", group_by="srch_id", type="lognorm")
+perform_preprocessing(data, "price_usd", group_by="srch_id", type="lognorm")
 # mean price per search id
-preprocess_feature_per_group(data, "price_usd", group_by="srch_id", type="mean")
+perform_preprocessing(data, "price_usd", group_by="srch_id", type="mean")
 
-def loc_score2_log_price(data):
-    """
-    Create feature: prop_location_score2 over the log normalized price per search id.
-    :param data: pd dataframe
-    :return: new feature vector
-    """
-    # get the log standardized adjusted by search id prices
-    log_standardized_price = log_standardize_per_srch_id(data, 'price_usd')
-    # normalize per search id
-    log_normalized_price= log_standardized_price.groupby(data['srch_id']).apply(lambda x: (x - min(x))/(max(x) - min(x))+1)
-    # return location score2 / log_normalized prices per search id
-    return data['prop_location_score2'].fillna(0) / log_normalized_price
-
-# difference between mean purchase history and price
-def diff_mean_history_to_price(data):
-    """
-    Creates feature which is the difference between the mean purchase history of a user
-    and the current price of the instance.
-    :param data: pd dataframe
-    :return: new feature vector
-    """
-    # new feature is difference of visitors mean purchase history price and current usd price
-    data['mean_price_hist_diff'] = data['visitor_hist_adr_usd'] - data['price_usd']
-    return data['mean_price_hist_diff']
-
-def diff_prop_cust_rating(data):
-    """
-    Create feature which is the difference between the mean str rating a customer gave in the past
-    and the current property rating of a hotel.
-    :param data: pd dataframe
-    :return: new feature vector
-    """
-    # new feature is difference of visitors mean purchase history price and current usd price
-    data['mean_star_rating_diff'] = data['visitor_hist_starrating'] - data['prop_starrating']
-    return data['mean_star_rating_diff']
-
+# perform feature extraction / generate all features we want to generate
+# add them to training and test dataset
+# preprocess all variables
 
 numeric_feature_list = ['srch_length_of_stay', 'srch_booking_window', \
         'srch_adults_count', 'srch_children_count', 'prop_id', 'click_bool', 'booking_bool', \
         'prop_location_score2' ]
+
 categorial_feature_list = ['srch_id', 'promotion_flag']
 
-def extract_train_features(data, numeric_feature_list, categorial_feature_list):
+def extract_train_features(data, numeric_feature_list, categorial_feature_list, target="book"):
     """
     Extract the traning features from the data which already incorporates the target
     as either label or score.
@@ -415,6 +352,23 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_regression
 X, y = make_regression(n_features=4, n_informative=2,random_state=0, shuffle=False)
 data = data.loc[:, data.columns != "date_time"]
+
+# def get_taxes(data):
+#     """
+#     Some countries have taxes on the prices
+#     :param data:
+#     :return:
+#     """
+#     # gross booking price
+#     corr_data = data[data['gross_bookings_usd'].notnull()]
+#     # tax = gross - (nights*price)
+#     # add tax as new feature
+#     corr_data.loc[:,'tax'] = corr_data['gross_bookings_usd'] - (corr_data['price_usd'] * corr_data['srch_length_of_stay'])
+#     #
+#     corr_data[corr_data['tax'] > 0].groupby('prop_country_id').mean()['tax'].sort_values(ascending=False)
+#
+#     return corr_data
+
 
 
 
