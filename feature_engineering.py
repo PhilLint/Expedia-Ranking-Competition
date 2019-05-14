@@ -84,6 +84,24 @@ def create_label(data, three_classes=False):
 #demo
 data_with_target = create_label(training)
 
+def transform_price_per_night()
+
+correlations = data.groupby('prop_country_id')[['price_usd', 'srch_length_of_stay']].corr().iloc[0::2,-1]
+data.groupby('prop_country_id')[['price_usd','srch_length_of_stay']].corr().iloc[0::2]['srch_length_of_stay']
+
+over_threshold = np.where(arr>0.4)[0]
+prop_ids = sorted(np.unique(data["prop_country_id"]))
+
+countries = list(np.array(prop_ids)[over_threshold])
+
+sub = data
+sub = sub.loc[sub["prop_country_id"].isin(countries),:]
+
+
+sub["prop_country_id"] = sub["prop_country_id"].astype(int)
+sub.loc[sub["prop_country_id"]== 56].plot.scatter("srch_length_of_stay","price_usd", c = "prop_country_id")
+plt.show()
+
 def simple_imputation(data, feature_name, type='mean'):
     """
     Impute NaN values with mean or median of vector
@@ -100,7 +118,7 @@ def simple_imputation(data, feature_name, type='mean'):
         imp_val = data[feature_name].median()
     data.loc[missing_ids, feature_name] = imp_val
 
-def numerical_imputation(data, feature_name, type='mean'):
+def numerical_imputation(data, target_name, feature_names, type='mean'):
     """
     Impute a categorial or numerical mssing variable with predictions coming from
     a random Forest model based on the non missing data
@@ -250,9 +268,9 @@ def perform_preprocessing(data, feature_name, type, group_by=None):
     elif type == "mean":
         processed_feature = mean_med_std_feature(data, feature_name, "mean", group_by=group_by)
     elif type == "median":
-        processed_feature = mean_med_std_feature(data, feature_name, "median", group_by)
+        processed_feature = mean_med_std_feature(data, feature_name, "median", group_by=group_by)
     elif type == "std":
-        processed_feature = mean_med_std_feature(data, feature_name, "std", group_by)
+        processed_feature = mean_med_std_feature(data, feature_name, "std", group_by=group_by)
 
     return processed_feature
 
@@ -265,13 +283,33 @@ perform_preprocessing(data, "price_usd", group_by="srch_id", type="mean")
 # add them to training and test dataset
 # preprocess all variables
 
+def standardize_all_numerical(data, feature_list):
+    """
+    Standardize all features from feature_list
+    :param data:
+    :param feature_list:
+    :return:
+    """
+    standardized_features = data[feature_list].astype(float).apply(pp.scale, axis=0, raw=True)
+    return standardized_features
+
+def normalize_all_numerical(data, feature_list):
+    """
+    Normalize all features from feature_list
+    :param data:
+    :param feature_list:
+    :return:
+    """
+    normalized_features = data[feature_list].astype(float).apply(lambda x: pp.normalize(x)[0], axis=1, raw=True)
+    return normalized_features
+
 numeric_feature_list = ['srch_length_of_stay', 'srch_booking_window', \
-        'srch_adults_count', 'srch_children_count', 'prop_id', 'click_bool', 'booking_bool', \
+        'srch_adults_count', 'srch_children_count',  \
         'prop_location_score2' ]
 
-categorial_feature_list = ['srch_id', 'promotion_flag']
+categorial_feature_list = ['srch_id', 'promotion_flag', 'prop_id', 'click_bool', 'booking_bool']
 
-def extract_train_features(data, numeric_feature_list, categorial_feature_list, target="book"):
+def extract_train_features(data, numeric_feature_list, categorial_feature_list, target="book", max_rank=None):
     """
     Extract the traning features from the data which already incorporates the target
     as either label or score.
@@ -281,7 +319,76 @@ def extract_train_features(data, numeric_feature_list, categorial_feature_list, 
     :return: new data with only relevant features for training
     """
     # filter by both numerical and categorial features
-    df = data.loc[:,numeric_feature_list + categorial_feature_list]
+    data = data.loc[:, numeric_feature_list + categorial_feature_list]
+
+    # create new features
+    data.loc[:, "price_diff"] = create_difference_feature(data, "visitor_hist_adr_usd", "price_usd")
+    data.loc[:, "star_diff"] = create_difference_feature(data, "visitor_hist_starrating", "prop_starrating")
+    data.loc[:, "average_price_country"] = perform_preprocessing(data, feature_name="price_usd", group_by="prop_country_id", type="mean")
+    data.loc[:, "average_price_srch"] = perform_preprocessing(data, feature_name="price_usd", group_by="srch_id", type="mean")
+    data.loc[:, "price_diff_country"] = create_difference_feature(data, "average_price_country", "price_usd")
+    data.loc[:, "price_diff_srch"] = create_difference_feature(data, "average_price_srch", "price_usd")
+
+    data.loc[:, "average_star_country"] = perform_preprocessing(data, feature_name="prop_starrating",
+                                                                 group_by="prop_country_id", type="mean")
+    data.loc[:, "average_star_srch"] = perform_preprocessing(data, feature_name="prop_starrating", group_by="srch_id",
+                                                              type="mean")
+    data.loc[:, "star_diff_country"] = create_difference_feature(data, "average_star_country", "visitor_hist_starrating")
+    data.loc[:, "star_diff_srch"] = create_difference_feature(data, "average_star_srch", "visitor_hist_starrating")
+
+    #
+    data.loc[:, "average_loc1_srch"] = perform_preprocessing(data, feature_name="prop_location_score1",
+                                                                group_by="srch_id", type="mean")
+    data.loc[:, "average_loc2_srch"] = perform_preprocessing(data, feature_name="prop_location_score2",
+                                                                group_by="srch_id", type="mean")
+    #
+    data.loc[:, "locscore1_diff_srch"] = create_difference_feature(data, "average_loc1_srch", "prop_location_score1")
+    data.loc[:, "locscore2_diff_srch"] = create_difference_feature(data, "average_loc2_srch", "prop_location_score2")
+
+    # mean
+    data.loc[:, "average_num_country"] = perform_preprocessing(data, feature_name=numeric_feature_list,
+                                                                 group_by="prop_country_id", type="mean").mean(axis=1)
+    data.loc[:, "average_num_srch"] = perform_preprocessing(data, feature_name=numeric_feature_list,
+                                                               group_by="srch_id", type="mean").mean(axis=1)
+    data.loc[:, "average_num_prop"] = perform_preprocessing(data, feature_name=numeric_feature_list,
+                                                               group_by="prop_id", type="mean").mean(axis=1)
+    # median
+    data.loc[:, "median_num_country"] = perform_preprocessing(data, feature_name=numeric_feature_list,
+                                                               group_by="prop_country_id", type="median").mean(axis=1)
+    data.loc[:, "median_num_srch"] = perform_preprocessing(data, feature_name=numeric_feature_list,
+                                                            group_by="srch_id", type="median").mean(axis=1)
+    data.loc[:, "median_num_prop"] = perform_preprocessing(data, feature_name=numeric_feature_list,
+                                                            group_by="prop_id", type="median").mean(axis=1)
+    # stds
+    data.loc[:, "std_num_country"] = perform_preprocessing(data, feature_name=numeric_feature_list,
+                                                               group_by="prop_country_id", type="std").mean(axis=1)
+    data.loc[:, "std_num_srch"] = perform_preprocessing(data, feature_name=numeric_feature_list,
+                                                            group_by="srch_id", type="std").mean(axis=1)
+    data.loc[:, "std_num_prop"] = perform_preprocessing(data, feature_name=numeric_feature_list,
+                                                            group_by="prop_id", type="std").mean(axis=1)
+
+    # new customer
+    new_ids = data["visitor_hist_starrating"].isnull() & data["visitor_hist_adr_usd"].isnull()
+    data.loc[:, "new_customer"] = 0
+    data.loc[new_ids, "new_customer"] = 1
+    # person per room
+    data.loc[:, "guest_count"] = data.loc[:, "srch_adults_count"] + data.loc[:, "srch_children_count"]
+    #
+    children_ids = data["srch_children_count"]>0
+    data.loc[:, "children_bool"] = 0
+    data.loc[children_ids, "children_bool"] =  1
+
+    id_list = get_id_list(data, max_rank=max_rank)
+    if target == "book":
+        data.loc[:, "target"] = create_label(data, three_classes=False)
+    elif target == "book_click":
+        data.loc[:, "target"] = create_label(data, three_classes=True)
+    elif target == "score":
+        data.loc[:, "target"] = create_target_score(data, id_list, weight_rank=False)
+    elif target == "score_rank":
+        data.loc[:, "target"] = create_target_score(data, id_list, weight_rank=True)
+
+
     # fill non existing prop review scores with 0s
     df.loc[:, 'prop_review_score'] = data['prop_review_score'].fillna(0)
     ds.loc[:, 'loc_ratio2'] = loc_ratio2(dset).fillna(0)
@@ -307,43 +414,6 @@ def test_feature_extraction(dset):
 
     return ds.fillna(0)
 
-
-def scale_features(dset):
-    """
-
-    :param dset:
-    :return:
-    """
-    field_list = ['prop_review_score', 'promotion_flag', 'srch_length_of_stay', \
-        'srch_booking_window', 'srch_adults_count', 'srch_children_count', \
-        'loc_ratio2']
-
-    tmp = dset[field_list].astype(float).apply(pp.scale, axis=0, raw=True)
-
-    tmp.loc[:, 'norm_star_rating'] = dset['norm_star_rating'].astype(float)
-    tmp.loc[:, 'nlog_price'] = dset['nlog_price'].astype(float)
-    tmp.loc[:, 'prop_id'] = dset['prop_id'].astype(float)
-    tmp.loc[:, 'srch_id'] = dset['srch_id'].astype(float)
-    tmp.loc[:, 'click_bool'] = dset['click_bool'].astype(float)
-    tmp.loc[:, 'booking_bool'] = dset['booking_bool'].astype(float)
-    tmp.loc[:, 'label'] = dset['label'].astype(float)
-
-    return tmp
-
-def normalize_samples(dset):
-    field_list = ['prop_review_score', 'promotion_flag', 'srch_length_of_stay', \
-        'srch_booking_window', 'srch_adults_count', 'srch_children_count', \
-        'loc_ratio2', 'norm_star_rating', 'nlog_price']
-
-    tmp = dset[field_list].apply(lambda x: pp.normalize(x)[0], axis=1, raw=True)
-
-    tmp.loc[:, 'prop_id'] = dset['prop_id']
-    tmp.loc[:, 'srch_id'] = dset['srch_id']
-    tmp.loc[:, 'click_bool'] = dset['click_bool']
-    tmp.loc[:, 'booking_bool'] = dset['booking_bool']
-    tmp.loc[:, 'label'] = dset['label']
-
-    return tmp
 
 
 
