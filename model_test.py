@@ -9,6 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
 from feature_selection import forest_feat_select
 from NDCG_k import calculate_score
+from sklearn.utils import shuffle
 
 
 def rf_regressor(data, n_estimators):
@@ -23,26 +24,21 @@ def rf_regressor(data, n_estimators):
     data = data.loc[:, data.columns != "date_time"]
     print("length original data", len(data))
 
-    new_data, number_books, number_clicks, id_list = oversample(data, max_rank=5)
-    print("length new data", len(new_data))
+    train, test = split_train_test(data)
 
-    new_data = new_data.sort_values(["srch_id"])
 
-    x = new_data[["prop_starrating", "prop_location_score1", "price_usd", "prop_log_historical_price"]]
-    y = new_data[["booking_bool", "prop_id", "srch_id"]]
+    train_down, number_books, number_clicks, id_list = oversample(train, max_rank=5)
+    print("length new data", len(train_down))
 
-    #X_train = x[:int(len(x)/2)]
-    #X_test = x[int(len(x)/2):]
+    X_train = train_down[["prop_starrating", "prop_location_score1", "price_usd", "prop_log_historical_price"]]
+    y_train = train_down[["booking_bool", "prop_id", "srch_id", "click_bool"]]
 
-    #y_train = y[:int(len(y)/2)]
-    #y_test = y[int(len(x)/2):]
-
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, shuffle=False)
+    X_test = test[["prop_starrating", "prop_location_score1", "price_usd", "prop_log_historical_price"]]
+    y_test = test[["booking_bool", "prop_id", "srch_id", "click_bool"]]
 
     rf = RandomForestRegressor(n_estimators=100)
 
     rf.fit(X_train, y_train["booking_bool"])
-    rf.feature_importances_
     prediction_rf = rf.predict(X_test)
 
     return y_test, prediction_rf
@@ -55,13 +51,51 @@ def prediction_to_submission(prediction, y_test):
     return y_test_sorted[["srch_id", "prop_id"]]
 
 
-#def feature_selection(estimator, data):
+def split_train_test(data):
+    """
+    split data into train (0.66) and test (0.33) data
+    :param data: pandas df
+    :return: two pandas dfs: train and test
+    """
+
+    test = shuffle(data.loc[data["srch_id"] % 3 == 0])
+    train = shuffle(data.loc[data["srch_id"] % 3 != 0])
+
+    return train, test
+
+
+def test_submission(data, test_data):
+    data = data.loc[:, data.columns != "date_time"]
+    print("length original data", len(data))
+
+    new_data, number_books, number_clicks, id_list = oversample(data, max_rank=5)
+    print("length new data", len(new_data))
+
+    new_data = new_data.sort_values(["srch_id"])
+
+    X_train = new_data[["prop_starrating", "prop_location_score1", "price_usd", "prop_log_historical_price"]]
+    y_train = new_data[["booking_bool", "prop_id", "srch_id", "click_bool"]]
+
+    X_test = test_data[["prop_starrating", "prop_location_score1", "price_usd", "prop_log_historical_price"]]
+    y_test = test_data[["prop_id", "srch_id"]]
+
+    rf = RandomForestRegressor(n_estimators=100)
+
+    rf.fit(X_train, y_train["booking_bool"])
+    prediction_rf = rf.predict(X_test)
+
+    return y_test, prediction_rf
+
 
 if __name__ == "__main__":
 
-    data = pd.read_csv("training_set_VU_DM.csv", nrows=100_000)
-    y_test, prediction = rf_regressor(data, 100)
+    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv")
+    test_data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/test_set_VU_DM.csv")
+    y_test, prediction = test_submission(data, test_data)
+    #y_test, prediction = rf_regressor(data, 100)
     submission = prediction_to_submission(prediction, y_test)
-    calculate_score(submission, y_test)
+    submission.to_csv("test_sub.csv", index=False)
+
+    print(calculate_score(submission, y_test))
 
 
