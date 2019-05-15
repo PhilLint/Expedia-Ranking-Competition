@@ -122,7 +122,7 @@ def numerical_imputation(data, target_name, feature_names, type='mean'):
     :param feature_name: feature to be predicted
     :return: predicted feature
     """
-    if type is not ("random_forest" or "lm"):
+    if type == "random_forest" or type == "lm":
         missing_ids = data.loc[data[target_name].isna(), :].index.values
         not_missing_ids = data.loc[~data[target_name].isna(), :].index.values
         # get target array
@@ -156,7 +156,9 @@ def numerical_imputation(data, target_name, feature_names, type='mean'):
         # apply simple imputation of type mean or median
         imputed_feature = simple_imputation(data, target_name, type=type)
 
-    return imputed_feature
+    # fill in imputated values
+    data.loc[missing_ids, target_name] = imputed_feature
+
 
 def standardize_feature(data, feature_name, group_by=None):
     """
@@ -315,11 +317,91 @@ def normalize_all_numerical(data, feature_list):
     normalized_features = data[feature_list].astype(float).apply(lambda x: pp.normalize(x)[0], axis=1, raw=True)
     return normalized_features
 
+def find_predictors_for_imputation(data, target_name, threshold=0.15):
+    """
+    For numerical imputation: If linear regression imputation find highly correlated features to use as
+    the features for the target feature.
+    :param data:
+    :param target_name:
+    :return:
+    """
+    # get correlations of features on the target variable (to be imputed one to find possible predictors for a
+    # linear regression
+    correlations = data.corr(method="spearman").iloc[0::2][target_name]
+    over_threshold = np.where(correlations > threshold)[0]
+    predictor_names = correlations.axes[0][over_threshold].tolist()
+    return predictor_names
+
+def add_overall_comp(data):
+    """
+    Add all competitor variables to come up with one feature to reduce NA values. This feature is the sum of the
+    comp rate feattures and indicates whether thie query is cheaper or more expensive then the competitors and sum
+    indicates also if many are cheaper or more expensive (-3 -> 3 are cheaper)
+    :param data:
+    :return:
+    """
+    competition = data[["comp1_rate", "comp2_rate", "comp3_rate", "comp4_rate", "comp5_rate", "comp6_rate", "comp7_rate", "comp8_rate"]]
+    competition = competition.sum(axis=1, skipna=True)
+    print("na count:", sum(competition.isnull()))
+    print("!= 0: ", len(competition != 0))
+
+    return competition
+
+def return_na_rate(data, feature_name, verbose=False):
+    """
+    Return NA rate to determine if imputation shall be done or not.
+    :param data:
+    :param feature_name:
+    :return:
+    """
+    # PROPORTION NAN
+    mask = data[feature_name].notna()
+    prop_na = len(data[feature_name].loc[mask]) / len(data[feature_name])
+    if verbose:
+        print(f"Checking NaN values for feature {feature_name}...\n")
+        print("Proportion notna values: ", prop_na)
+    return prop_na
+
+def return_imputables(data):
+    """
+    Get features that have na values
+    :param data:
+    :return: list with names of features with na values
+    """
+    impute_list = []
+    for feature in data.columns:
+        prop_na = return_na_rate(data, feature)
+        if prop_na < 1:
+            impute_list.append(feature)
+
+    return impute_list
+
+imp_list = return_imputables(data)
+
+
+
 numeric_feature_list = ['srch_length_of_stay', 'srch_booking_window', \
         'srch_adults_count', 'srch_children_count',  \
         'prop_location_score2' ]
 
 categorial_feature_list = ['srch_id', 'promotion_flag', 'prop_id', 'click_bool', 'booking_bool']
+
+
+
+def impute(data, impute_list):
+    """
+
+    :param data:
+    :param impute_list:
+    :return:
+    """
+    for target in impute_list:
+        preds = find_predictors_for_imputation(data, target, threshold=0.15)
+        if len(preds) != 0:
+            numerical_imputation(data, target, preds, type='lm')
+        else:
+            imputed_feature = numerical_imputation(data, target, preds, type='random_forest')
+
 
 def extract_train_features(data, numeric_feature_list, categorial_feature_list, target="book", max_rank=None):
     """
@@ -333,7 +415,23 @@ def extract_train_features(data, numeric_feature_list, categorial_feature_list, 
     # filter by both numerical and categorial features
     data = data.loc[:, numeric_feature_list + categorial_feature_list]
 
-    # create new features
+    ####################################################################################################################
+    # IMPUTE MISSING VALUES
+    # add overall comp
+    data.loc[:, "overall_comp"] = add_overall_comp(data)
+    # delete other comp variables
+    filter_col = [col for col in data if col.startswith('comp')]
+    data = data.drop(columns = filter_col)
+    # get features that need to be imputed
+    impute_list = return_imputables(data)
+    # impute all numerical values of impute_list
+    impute(data, impute_list)
+
+
+    ####################################################################################################################
+    # CREATE NEW FEATURES
+    # add competitor variable
+
     data.loc[:, "price_diff"] = create_difference_feature(data, "visitor_hist_adr_usd", "price_usd")
     data.loc[:, "star_diff"] = create_difference_feature(data, "visitor_hist_starrating", "prop_starrating")
     data.loc[:, "average_price_country"] = perform_preprocessing(data, feature_name="price_usd", group_by="prop_country_id", type="mean")
@@ -341,22 +439,20 @@ def extract_train_features(data, numeric_feature_list, categorial_feature_list, 
     data.loc[:, "price_diff_country"] = create_difference_feature(data, "average_price_country", "price_usd")
     data.loc[:, "price_diff_srch"] = create_difference_feature(data, "average_price_srch", "price_usd")
 
+    # create average per srch id
+    data.loc[:, "average_loc1_srch"] = perform_preprocessing(data, feature_name="prop_location_score1",
+                                                             group_by="srch_id", type="mean")
+    data.loc[:, "average_loc2_srch"] = perform_preprocessing(data, feature_name="prop_location_score2",
+                                                             group_by="srch_id", type="mean")
+    data.loc[:, "average_prop_review_score"] = perform_preprocessing(data, feature_name="prop_review_score",
+                                                                     group_by="srch_id", type="mean")
     data.loc[:, "average_star_country"] = perform_preprocessing(data, feature_name="prop_starrating",
                                                                  group_by="prop_country_id", type="mean")
     data.loc[:, "average_star_srch"] = perform_preprocessing(data, feature_name="prop_starrating", group_by="srch_id",
                                                               type="mean")
+    # create differences from average to features
     data.loc[:, "star_diff_country"] = create_difference_feature(data, "average_star_country", "visitor_hist_starrating")
     data.loc[:, "star_diff_srch"] = create_difference_feature(data, "average_star_srch", "visitor_hist_starrating")
-
-    #
-    data.loc[:, "average_loc1_srch"] = perform_preprocessing(data, feature_name="prop_location_score1",
-                                                                group_by="srch_id", type="mean")
-    data.loc[:, "average_loc2_srch"] = perform_preprocessing(data, feature_name="prop_location_score2",
-                                                                group_by="srch_id", type="mean")
-    data.loc[:, "average_prop_review_score"] = perform_preprocessing(data, feature_name="prop_review_score",
-                                                             group_by="srch_id", type="mean")
-
-    # difference of loc score of search to average loc score of query
     data.loc[:, "locscore1_diff_srch"] = create_difference_feature(data, "average_loc1_srch", "prop_location_score1")
     data.loc[:, "locscore2_diff_srch"] = create_difference_feature(data, "average_loc2_srch", "prop_location_score2")
     data.loc[:, "prop_review_score_diff_srch"] = create_difference_feature(data, "average_prop_review_score", "prop_review_score")
@@ -439,21 +535,6 @@ from sklearn.datasets import make_regression
 X, y = make_regression(n_features=4, n_informative=2,random_state=0, shuffle=False)
 data = data.loc[:, data.columns != "date_time"]
 
-# def get_taxes(data):
-#     """
-#     Some countries have taxes on the prices
-#     :param data:
-#     :return:
-#     """
-#     # gross booking price
-#     corr_data = data[data['gross_bookings_usd'].notnull()]
-#     # tax = gross - (nights*price)
-#     # add tax as new feature
-#     corr_data.loc[:,'tax'] = corr_data['gross_bookings_usd'] - (corr_data['price_usd'] * corr_data['srch_length_of_stay'])
-#     #
-#     corr_data[corr_data['tax'] > 0].groupby('prop_country_id').mean()['tax'].sort_values(ascending=False)
-#
-#     return corr_data
 
 
 

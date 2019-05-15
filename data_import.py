@@ -22,7 +22,6 @@ def import_data(filename, nrows=None):
 
     return data
 
-
 def filter_nothing_instances(data, nothing_ids=None, max_rank=None):
     """
     For neither clicked nor booked either choose randomly a smaller number of instances, or
@@ -41,10 +40,9 @@ def filter_nothing_instances(data, nothing_ids=None, max_rank=None):
 
     return nothing_ids
 
-
-def get_id_list(data, max_rank=None):
+def get_id_list(data, max_rank):
     """
-
+    Get book, click and nothing ids for later use.
     :param data:
     :return:
     """
@@ -59,17 +57,12 @@ def get_id_list(data, max_rank=None):
     number_book = book_ids.size
     # number clicked
     number_clicks = click_ids.size
-
     # only keep books and clicks
     # filter nothing instances down either randomly or only keep nothing instances
     # of position smaller than max_rank
     filtered_nothing_ids = filter_nothing_instances(data, nothing_ids=nothing_ids, max_rank=max_rank)
-
     id_list = [book_ids, click_ids, filtered_nothing_ids]
-
     return id_list, number_book, number_clicks
-
-
 
 def oversample(data, max_rank=None, print_desc=False):
     """
