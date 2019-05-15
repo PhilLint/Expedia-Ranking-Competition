@@ -84,18 +84,19 @@ def create_label(data, three_classes=False):
 #demo
 data_with_target = create_label(training)
 
-def transform_price_per_night()
+def transform_price_per_night():
 
-correlations = data.groupby('prop_country_id')[['price_usd', 'srch_length_of_stay']].corr().iloc[0::2,-1]
-data.groupby('prop_country_id')[['price_usd','srch_length_of_stay']].corr().iloc[0::2]['srch_length_of_stay']
 
-over_threshold = np.where(arr>0.4)[0]
-prop_ids = sorted(np.unique(data["prop_country_id"]))
+    correlations = data.groupby('prop_country_id')[['price_usd', 'srch_length_of_stay']].corr().iloc[0::2,-1]
+    data.groupby('prop_country_id')[['price_usd','srch_length_of_stay']].corr().iloc[0::2]['srch_length_of_stay']
 
-countries = list(np.array(prop_ids)[over_threshold])
+    over_threshold = np.where(arr > 0.4)[0]
+    prop_ids = sorted(np.unique(data["prop_country_id"]))
 
-sub = data
-sub = sub.loc[sub["prop_country_id"].isin(countries),:]
+    countries = list(np.array(prop_ids)[over_threshold])
+
+    sub = data
+    sub = sub.loc[sub["prop_country_id"].isin(countries),:]
 
 
 sub["prop_country_id"] = sub["prop_country_id"].astype(int)
@@ -118,6 +119,21 @@ def simple_imputation(data, feature_name, type='mean'):
         imp_val = data[feature_name].median()
     data.loc[missing_ids, feature_name] = imp_val
 
+
+#test
+import numpy as np
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+
+
+
+
+
+X_test = [[np.nan, 2], [6, np.nan], [np.nan, 6]]
+# the model learns that the second feature is double the first
+print(np.round(imp.transform(X_test)))
+
+
 def numerical_imputation(data, target_name, feature_names, type='mean'):
     """
     Impute a categorial or numerical mssing variable with predictions coming from
@@ -127,21 +143,26 @@ def numerical_imputation(data, target_name, feature_names, type='mean'):
     :return: predicted feature
     """
     if type is 'random_forest':
-        missing_ids = data.loc[data[feature_name].isna(),:].index.values
-        not_missing_ids = data.loc[~data[feature_name].isna(),:].index.values
+        missing_ids = data.loc[data[target_name].isna(), :].index.values
+        not_missing_ids = data.loc[~data[target_name].isna(), :].index.values
         # get target array
-        data = data.dropna()
-        y = np.array(data.loc[not_missing_ids, feature_name])
+        imp = IterativeImputer(max_iter=50, random_state=0)
+        imp_test = data.loc[:, data.columns != target_name]
+        imp.fit(imp_test)
+        X_test = imp_test
+        # the model learns that the second feature is double the first
+        imputed = pd.DataFrame(np.round(imp.transform(X_test)))
+        imputed.columns = data.columns.values[data.columns.values != target_name]
+
+        y = np.array(data.loc[not_missing_ids, target_name])
         # get feature array
-        X = np.array(data.loc[not_missing_ids, data.columns != feature_name])
+        X = np.array(imputed.loc[not_missing_ids, :])
         # create regressor
         regr = en.RandomForestRegressor(max_depth=None, random_state=0, n_estimators=100)
         # fit regression trees
         regr.fit(X, y)
-        # predict all missing values
-        # concatenate missing values vector (predictions) to non missing values to end up with
-        # full imputations
-        # TODO
+        imputed.loc[missing_ids, target_name] = data.loc[missing_ids, target_name]
+        imputed_feature = regr.predict(imputed.loc[missing_ids, :])
     else:
         # apply simple imputation of type
         simple_imputation(data, feature_name, type=type)
@@ -341,25 +362,29 @@ def extract_train_features(data, numeric_feature_list, categorial_feature_list, 
                                                                 group_by="srch_id", type="mean")
     data.loc[:, "average_loc2_srch"] = perform_preprocessing(data, feature_name="prop_location_score2",
                                                                 group_by="srch_id", type="mean")
-    #
+    data.loc[:, "average_prop_review_score"] = perform_preprocessing(data, feature_name="prop_review_score",
+                                                             group_by="srch_id", type="mean")
+
+    # difference of loc score of search to average loc score of query
     data.loc[:, "locscore1_diff_srch"] = create_difference_feature(data, "average_loc1_srch", "prop_location_score1")
     data.loc[:, "locscore2_diff_srch"] = create_difference_feature(data, "average_loc2_srch", "prop_location_score2")
+    data.loc[:, "prop_review_score_diff_srch"] = create_difference_feature(data, "average_prop_review_score", "prop_review_score")
 
-    # mean
+    # mean of all numerical features per group
     data.loc[:, "average_num_country"] = perform_preprocessing(data, feature_name=numeric_feature_list,
                                                                  group_by="prop_country_id", type="mean").mean(axis=1)
     data.loc[:, "average_num_srch"] = perform_preprocessing(data, feature_name=numeric_feature_list,
                                                                group_by="srch_id", type="mean").mean(axis=1)
     data.loc[:, "average_num_prop"] = perform_preprocessing(data, feature_name=numeric_feature_list,
                                                                group_by="prop_id", type="mean").mean(axis=1)
-    # median
+    # median of all numerical features
     data.loc[:, "median_num_country"] = perform_preprocessing(data, feature_name=numeric_feature_list,
                                                                group_by="prop_country_id", type="median").mean(axis=1)
     data.loc[:, "median_num_srch"] = perform_preprocessing(data, feature_name=numeric_feature_list,
                                                             group_by="srch_id", type="median").mean(axis=1)
     data.loc[:, "median_num_prop"] = perform_preprocessing(data, feature_name=numeric_feature_list,
                                                             group_by="prop_id", type="median").mean(axis=1)
-    # stds
+    # stds of all numerical features
     data.loc[:, "std_num_country"] = perform_preprocessing(data, feature_name=numeric_feature_list,
                                                                group_by="prop_country_id", type="std").mean(axis=1)
     data.loc[:, "std_num_srch"] = perform_preprocessing(data, feature_name=numeric_feature_list,
@@ -367,13 +392,13 @@ def extract_train_features(data, numeric_feature_list, categorial_feature_list, 
     data.loc[:, "std_num_prop"] = perform_preprocessing(data, feature_name=numeric_feature_list,
                                                             group_by="prop_id", type="std").mean(axis=1)
 
-    # new customer
+    # new customer yes or no
     new_ids = data["visitor_hist_starrating"].isnull() & data["visitor_hist_adr_usd"].isnull()
     data.loc[:, "new_customer"] = 0
     data.loc[new_ids, "new_customer"] = 1
     # person per room
     data.loc[:, "guest_count"] = data.loc[:, "srch_adults_count"] + data.loc[:, "srch_children_count"]
-    #
+    # children yes or no
     children_ids = data["srch_children_count"]>0
     data.loc[:, "children_bool"] = 0
     data.loc[children_ids, "children_bool"] =  1
