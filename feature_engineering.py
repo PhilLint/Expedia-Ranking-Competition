@@ -5,6 +5,9 @@ import os
 from data_import import *
 from data_import import oversample
 from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LinearRegression
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
 
 training = import_data('training_set_VU_DM.csv', nrows = 100000)
 test = import_data('test_set_VU_DM.csv', nrows = 100000)
@@ -84,30 +87,21 @@ def create_label(data, three_classes=False):
 #demo
 data_with_target = create_label(training)
 
-def transform_price_per_night():
+# def transform_price_per_night(data, threshold=0.3):
+#     correlations = data.groupby('prop_country_id')[['price_usd', 'srch_length_of_stay']].corr().iloc[0::2,-1]
+#     arr = data.groupby('prop_country_id')[['price_usd','srch_length_of_stay']].corr().iloc[0::2]['srch_length_of_stay']
+#     over_threshold = np.where(arr > threshold)[0]
+#     prop_ids = sorted(np.unique(data["prop_country_id"]))
+#     countries = list(np.array(prop_ids)[over_threshold])
+#     sub = data
+#     sub = sub.loc[sub["prop_country_id"].isin(countries),:]
 
-
-    correlations = data.groupby('prop_country_id')[['price_usd', 'srch_length_of_stay']].corr().iloc[0::2,-1]
-    data.groupby('prop_country_id')[['price_usd','srch_length_of_stay']].corr().iloc[0::2]['srch_length_of_stay']
-
-    over_threshold = np.where(arr > 0.4)[0]
-    prop_ids = sorted(np.unique(data["prop_country_id"]))
-
-    countries = list(np.array(prop_ids)[over_threshold])
-
-    sub = data
-    sub = sub.loc[sub["prop_country_id"].isin(countries),:]
-
-
-sub["prop_country_id"] = sub["prop_country_id"].astype(int)
-sub.loc[sub["prop_country_id"]== 56].plot.scatter("srch_length_of_stay","price_usd", c = "prop_country_id")
-plt.show()
 
 def simple_imputation(data, feature_name, type='mean'):
     """
     Impute NaN values with mean or median of vector
     :param data: np array vector
-    :return: same np without missing values
+    :return: imputed vector
     """
     # find missing ids
     missing_ids = data.loc[data[feature_name].isna(), :].index.values
@@ -117,22 +111,8 @@ def simple_imputation(data, feature_name, type='mean'):
     elif type == 'median':
         # find median
         imp_val = data[feature_name].median()
-    data.loc[missing_ids, feature_name] = imp_val
-
-
-#test
-import numpy as np
-from sklearn.experimental import enable_iterative_imputer
-from sklearn.impute import IterativeImputer
-
-
-
-
-
-X_test = [[np.nan, 2], [6, np.nan], [np.nan, 6]]
-# the model learns that the second feature is double the first
-print(np.round(imp.transform(X_test)))
-
+    imputed_feature = [imp_val] * len(data.loc[missing_ids, feature_name])
+    return imputed_feature
 
 def numerical_imputation(data, target_name, feature_names, type='mean'):
     """
@@ -142,18 +122,18 @@ def numerical_imputation(data, target_name, feature_names, type='mean'):
     :param feature_name: feature to be predicted
     :return: predicted feature
     """
-    if type is 'random_forest':
+    if type is not ("random_forest" or "lm"):
         missing_ids = data.loc[data[target_name].isna(), :].index.values
         not_missing_ids = data.loc[~data[target_name].isna(), :].index.values
         # get target array
         imp = IterativeImputer(max_iter=50, random_state=0)
-        imp_test = data.loc[:, data.columns != target_name]
+        imp_test = data.loc[:, feature_names]
         imp.fit(imp_test)
-        X_test = imp_test
         # the model learns that the second feature is double the first
-        imputed = pd.DataFrame(np.round(imp.transform(X_test)))
-        imputed.columns = data.columns.values[data.columns.values != target_name]
+        imputed = pd.DataFrame(np.round(imp.transform(imp_test)))
+        imputed.columns = feature_names
 
+    if type is 'random_forest':
         y = np.array(data.loc[not_missing_ids, target_name])
         # get feature array
         X = np.array(imputed.loc[not_missing_ids, :])
@@ -162,10 +142,21 @@ def numerical_imputation(data, target_name, feature_names, type='mean'):
         # fit regression trees
         regr.fit(X, y)
         imputed.loc[missing_ids, target_name] = data.loc[missing_ids, target_name]
-        imputed_feature = regr.predict(imputed.loc[missing_ids, :])
+        imputed_feature = regr.predict(imputed.loc[missing_ids, imputed.columns.isin(feature_names)])
+
+    elif type == "lm":
+        y = np.array(data.loc[not_missing_ids, target_name])
+        # get feature array
+        X = np.array(imputed.loc[not_missing_ids, :])
+        # create regressor
+        reg = LinearRegression().fit(X, y)
+        imputed.loc[missing_ids, target_name] = data.loc[missing_ids, target_name]
+        imputed_feature = reg.predict(imputed.loc[missing_ids, imputed.columns.isin(feature_names)])
     else:
-        # apply simple imputation of type
-        simple_imputation(data, feature_name, type=type)
+        # apply simple imputation of type mean or median
+        imputed_feature = simple_imputation(data, target_name, type=type)
+
+    return imputed_feature
 
 def standardize_feature(data, feature_name, group_by=None):
     """
