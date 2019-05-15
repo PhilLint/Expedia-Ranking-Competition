@@ -10,7 +10,6 @@ training = pd.read_csv('./data/training_set_VU_DM.csv', nrows = 10000)
 test = pd.read_csv('./data/test_set_VU_DM.csv', nrows = 10000)
 
 
-
 # How many values are missing for per feature?
 missing=[]
 for i in training:
@@ -34,7 +33,6 @@ training["visitor_hist_starrating"].hist()
 plt.title("Distribution of visitor_hist_starrating")
 
 sns.distplot(training["visitor_hist_starrating"])
-
 
 
 # fraction of missing values for starrating history
@@ -76,8 +74,6 @@ plt.show()
 training['promotion_flag'].bar(by=training['booking_bool'])
 plt.title("Sale Price Promotion by booking (1/0)", horizontalalignment ='center')
 
-# scatterplot: x-axis = prop_review_score, y-axis = number of bookings
-#
 
 # Barplots: x-axis prop_brand_bool (+1 hotel belongs to chain, 0 independent hotel),
 #           y-axis = number of bookings/clicks
@@ -88,10 +84,9 @@ plt.title("Sale Price Promotion by booking (1/0)", horizontalalignment ='center'
 training["prop_location_score1"].head()
 training["prop_location_score1"].head()
 
-# barplot: x-axis = prop_location_score1/2, y-axis = number of bookings for that block
+# barplot: x-axis = prop_location_score1/2/prop_review_score, y-axis = number of bookings for that block
 
-# Are there strong correllations in the dataset?
-#sns.pairplot(training)
+# Are there strong correlations in the data set?
 
 # scatterplot: x-axis = prop_location_score1, y-axis = prop_location_score2
 sns.lmplot('prop_location_score1', # Horizontal axis
@@ -117,7 +112,7 @@ test = import_data('test_set_VU_DM.csv', nrows = 100000)
 
 def ranking_plot(df):
     """
-    PLots for expedia and random ranking the position and booking / clicking
+    Plots for expedia and random ranking the position and booking / clicking
     :param data: pd dataframe
     :return: plot so no return
     """
