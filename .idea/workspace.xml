@@ -2,19 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5bb38305-64f8-4f92-9587-987dd8d34dd7" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/NA_handling_log.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NDCG_k.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/feature_engineering.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/figures/book_position_maxrank.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/figures/book_position_random_choice.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/model_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/plots/outlier_plot.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Expedia-Ranking-Competition.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Expedia-Ranking-Competition.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NA_handling.py" beforeDir="false" afterPath="$PROJECT_DIR$/NA_handling.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data_import.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_import.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exploration.py" beforeDir="false" afterPath="$PROJECT_DIR$/exploration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/submission_sample.csv" beforeDir="false" afterPath="$PROJECT_DIR$/submission_sample.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/feature_engineering.py" beforeDir="false" afterPath="$PROJECT_DIR$/feature_engineering.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -22,43 +11,73 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FUSProjectUsageTrigger">
-    <session id="-246265627">
-      <usages-collector id="statistics.lifecycle.project">
-        <counts>
-          <entry key="project.open.time.4" value="1" />
-          <entry key="project.opened" value="1" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.open">
-        <counts>
-          <entry key="py" value="1" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.open">
-        <counts>
-          <entry key="Python" value="1" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.edit">
-        <counts>
-          <entry key="py" value="1576" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.edit">
-        <counts>
-          <entry key="Python" value="1576" />
-        </counts>
-      </usages-collector>
-    </session>
-  </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data_import.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="68">
+              <caret line="44" selection-start-line="44" selection-end-line="70" />
+              <folding>
+                <element signature="e#0#19#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/feature_engineering.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="333">
+              <caret line="392" lean-forward="true" selection-start-line="392" selection-end-line="392" />
+              <folding>
+                <element signature="e#0#39#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/NDCG_k.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/model_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/NA_handling.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/exploration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" selection-start-line="5" selection-end-line="5" />
+            <state relative-caret-position="2686">
+              <caret line="158" selection-start-line="158" selection-end-line="158" />
+              <folding>
+                <element signature="e#0#19#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -78,9 +97,10 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/data_import.py" />
         <option value="$PROJECT_DIR$/import2.py" />
         <option value="$PROJECT_DIR$/exploration.py" />
+        <option value="$PROJECT_DIR$/data_import.py" />
+        <option value="$PROJECT_DIR$/feature_engineering.py" />
       </list>
     </option>
   </component>
@@ -102,6 +122,11 @@
             <path>
               <item name="Expedia-Ranking-Competition" type="b2602c69:ProjectViewProjectNode" />
               <item name="Expedia-Ranking-Competition" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Expedia-Ranking-Competition" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Expedia-Ranking-Competition" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -146,13 +171,13 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10225000" />
+    <option name="totallyTimeSpent" value="26933000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <frame x="-6" y="-6" width="1441" height="1013" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25596184" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1352133" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -167,33 +192,46 @@
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.3295583" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="12" visible="true" weight="0.4920071" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="12" visible="true" weight="0.29558325" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" />
+      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.11930586" />
       <window_info anchor="right" id="Database" order="4" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
-  </component>
   <component name="editorHistoryManager">
     <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py" />
-    <entry file="file://$PROJECT_DIR$/data_import.py">
+    <entry file="file://$PROJECT_DIR$/exploration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="16" lean-forward="true" selection-start-line="11" selection-end-line="16" />
+        <state relative-caret-position="2686">
+          <caret line="158" selection-start-line="158" selection-end-line="158" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/exploration.py">
+    <entry file="file://$PROJECT_DIR$/data_import.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" selection-start-line="5" selection-end-line="5" />
+        <state relative-caret-position="68">
+          <caret line="44" selection-start-line="44" selection-end-line="70" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/feature_engineering.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="333">
+          <caret line="392" lean-forward="true" selection-start-line="392" selection-end-line="392" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

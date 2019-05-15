@@ -43,7 +43,7 @@ def check_na(data, feature):
         sns.regplot(data.position[mask], data[feature].loc[mask], ax=axs[2], marker='o', color='blue', scatter_kws={'s': 2})
         axs[2].set_title('position')
         plt.savefig(feature)
-        
+
         plt.clf()
         # SCATTER
         # sns.scatterplot(data.position[mask], data[feature].loc[mask], s=5, ax=axs[2])
@@ -218,14 +218,14 @@ def competition_plot(data, to_save=False, name=None):
         plt.show()
 
 
+
 if __name__ == "__main__":
 
-    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv", nrows=100_000)
+
+    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv", nrows=1_000_000)
+    competition = data[["comp1_rate", "comp2_rate", "comp3_rate", "comp4_rate", "comp5_rate", "comp6_rate", "comp7_rate", "comp8_rate"]]
 
 
-    #features = ["gross_bookings_usd", "price_usd", "prop_log_historical_price", "comp1_rate_percent_diff", "comp2_rate_percent_diff",
-    #            "comp3_rate_percent_diff", "comp4_rate_percent_diff", "comp5_rate_percent_diff", "comp6_rate_percent_diff",
-    #            "comp7_rate_percent_diff", "comp8_rate_percent_diff",]
-    #outlier_plot(data, to_save=True, name="outlier_plot_wide.png")
-    #competition_plot(data, to_save=True, name="competition_plot.png")
-
+    data["comp_overall"] = competition.sum(axis=1, skipna=True)
+    print("na count:", sum(data["comp_overall"].isnull()))
+    print("!= 0: ", len(data.loc[data["comp_overall"] != 0]))

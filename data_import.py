@@ -16,7 +16,7 @@ def import_data(filename, nrows=None):
     if nrows is None:
         data = pd.read_csv(str('./data/') + filename)
     else:
-        data= pd.read_csv(str('./data/') + filename, nrows=nrows)
+        data = pd.read_csv(str('./data/') + filename, nrows=nrows)
     # remove time stamp of query
     data = data.loc[:, data.columns != "date_time"]
 
@@ -42,6 +42,35 @@ def filter_nothing_instances(data, nothing_ids=None, max_rank=None):
     return nothing_ids
 
 
+def get_id_list(data, max_rank=None):
+    """
+
+    :param data:
+    :return:
+    """
+    # getting the indices of the instance
+    # booked instances
+    book_ids = data[data['booking_bool'] == 1].index.values
+    # only clicked (not booked) instances
+    click_ids = data[(data['booking_bool'] == 0) & (data['click_bool'] == 1)].index.values
+    # neither clicked nor booked
+    nothing_ids = data[(data['booking_bool'] == 0) & (data['click_bool'] == 0)].index.values
+    # number booked
+    number_book = book_ids.size
+    # number clicked
+    number_clicks = click_ids.size
+
+    # only keep books and clicks
+    # filter nothing instances down either randomly or only keep nothing instances
+    # of position smaller than max_rank
+    filtered_nothing_ids = filter_nothing_instances(data, nothing_ids=nothing_ids, max_rank=max_rank)
+
+    id_list = [book_ids, click_ids, filtered_nothing_ids]
+
+    return id_list, number_book, number_clicks
+
+
+
 def oversample(data, max_rank=None, print_desc=False):
     """
     Mainly unbooked and unclicked results, therefore to save computational cost and
@@ -49,29 +78,15 @@ def oversample(data, max_rank=None, print_desc=False):
     :param data: panda array of training data
     :return: smaller panda array based on training data
     """
-    # getting the indices of the instance
-    # booked instances
-    book_ids = data[data['booking_bool']==1].index.values
-    # only clicked (not booked) instances
-    click_ids = data[(data['booking_bool']==0) & (data['click_bool']==1)].index.values
-    # neither clicked nor booked
-    nothing_ids = data[(data['booking_bool']==0) & (data['click_bool']==0)].index.values
-    # number booked
-    number_book= book_ids.size
-    # number clicked
-    number_clicks = click_ids.size
-    # only keep books and clicks
-    # filter nothing instances down either randomly or only keep nothing instances
-    # of position smaller than max_rank
-    filtered_nothing_ids = filter_nothing_instances(data, nothing_ids=nothing_ids, max_rank=max_rank)
+    id_list, number_book, number_clicks = get_id_list(data, max_rank=max_rank)
+    book_ids, click_ids, filtered_nothing_ids = id_list
     # filter out the dataset
     data = pd.concat([data[data.index.isin(book_ids)], data[data.index.isin(click_ids)],  data[data.index.isin(filtered_nothing_ids)]])
     # print descriptives
     if print_desc:
         print("Number of observations: " + str(len(new_training)) + " ||  number of bookings: " + str(number_books) +
               " ||  number of clicks: " + str(number_clicks))
-    id_list = [book_ids, click_ids, filtered_nothing_ids]
-    return data, number_book, number_clicks, id_list
+    return data, number_book, number_clicks,
 
 
 if __name__ == "__main__":
