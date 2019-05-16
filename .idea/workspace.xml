@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5bb38305-64f8-4f92-9587-987dd8d34dd7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/NA_handling.py" beforeDir="false" afterPath="$PROJECT_DIR$/NA_handling.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_import.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_import.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/feature_engineering.py" beforeDir="false" afterPath="$PROJECT_DIR$/feature_engineering.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,7 +16,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/data_import.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-553">
+            <state relative-caret-position="629">
               <caret line="42" column="30" selection-start-line="42" selection-start-column="30" selection-end-line="42" selection-end-column="30" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
@@ -29,8 +28,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/feature_engineering.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="298">
-              <caret line="537" lean-forward="true" selection-start-line="537" selection-end-line="537" />
+            <state relative-caret-position="306">
+              <caret line="560" selection-start-line="560" selection-end-line="560" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -57,7 +56,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/NA_handling.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="178">
+            <state relative-caret-position="187">
               <caret line="19" column="2" selection-start-line="19" selection-start-column="2" selection-end-line="23" selection-end-column="47" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -69,7 +68,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/exploration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2499">
+            <state relative-caret-position="4250">
               <caret line="255" selection-start-line="255" selection-end-line="255" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
@@ -87,6 +86,13 @@
       </list>
     </option>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>pp</find>
+      <find>pp.</find>
+      <find>normalize</find>
+    </findStrings>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -101,7 +107,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-6" />
     <option name="y" value="-6" />
     <option name="width" value="762" />
@@ -164,21 +170,22 @@
       <workItem from="1556526256666" duration="273000" />
       <workItem from="1556526575647" duration="1411000" />
       <workItem from="1556528342589" duration="8541000" />
+      <workItem from="1557991054426" duration="25340000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="38832000" />
+    <option name="totallyTimeSpent" value="64246000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-6" y="-6" width="1441" height="1013" extended-state="6" />
+    <frame x="-6" y="-6" width="1447" height="1013" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13665944" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13822894" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3295583" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -189,11 +196,11 @@
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.3295583" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="12" visible="true" weight="0.3193658" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="12" visible="true" weight="0.34201586" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.11930586" />
+      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.08927286" />
       <window_info anchor="right" id="Database" order="4" />
     </layout>
   </component>
@@ -202,19 +209,9 @@
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py" />
-    <entry file="file://$PROJECT_DIR$/exploration.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2499">
-          <caret line="255" selection-start-line="255" selection-end-line="255" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/data_import.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-553">
+        <state relative-caret-position="629">
           <caret line="42" column="30" selection-start-line="42" selection-start-column="30" selection-end-line="42" selection-end-column="30" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
@@ -222,9 +219,21 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/NDCG_k.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model_test.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/NA_handling.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
+        <state relative-caret-position="187">
           <caret line="19" column="2" selection-start-line="19" selection-start-column="2" selection-end-line="23" selection-end-column="47" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
@@ -232,10 +241,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/exploration.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4250">
+          <caret line="255" selection-start-line="255" selection-end-line="255" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/feature_engineering.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="298">
-          <caret line="537" lean-forward="true" selection-start-line="537" selection-end-line="537" />
+        <state relative-caret-position="306">
+          <caret line="560" selection-start-line="560" selection-end-line="560" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
