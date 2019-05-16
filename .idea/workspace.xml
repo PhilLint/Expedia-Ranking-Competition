@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5bb38305-64f8-4f92-9587-987dd8d34dd7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/feature_engineering.py" beforeDir="false" afterPath="$PROJECT_DIR$/feature_engineering.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -28,8 +27,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/feature_engineering.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="560" selection-start-line="560" selection-end-line="560" />
+            <state relative-caret-position="420">
+              <caret line="571" selection-start-line="571" selection-end-line="571" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -170,16 +169,15 @@
       <workItem from="1556526256666" duration="273000" />
       <workItem from="1556526575647" duration="1411000" />
       <workItem from="1556528342589" duration="8541000" />
-      <workItem from="1557991054426" duration="25340000" />
+      <workItem from="1557991054426" duration="25660000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="64246000" />
+    <option name="totallyTimeSpent" value="64566000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="-6" width="1447" height="1013" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13822894" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -253,8 +251,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/feature_engineering.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="560" selection-start-line="560" selection-end-line="560" />
+        <state relative-caret-position="420">
+          <caret line="571" selection-start-line="571" selection-end-line="571" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>

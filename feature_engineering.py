@@ -567,3 +567,8 @@ def test_feature_extraction(data):
     :return:
     """
     generate_features(data)
+
+generate_features(training)
+generate_features(test)
+save_final_dataframe_csv(training, "training")
+save_final_dataframe_csv(test, "test")
