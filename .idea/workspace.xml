@@ -30,8 +30,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/feature_engineering.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-540">
-              <caret line="116" column="4" selection-start-line="116" selection-start-column="4" selection-end-line="116" selection-end-column="4" />
+            <state relative-caret-position="275">
+              <caret line="519" column="20" lean-forward="true" selection-start-line="519" selection-end-line="520" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -93,6 +93,7 @@
       <find>pp</find>
       <find>pp.</find>
       <find>normalize</find>
+      <find>numeric_fea</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -127,7 +128,7 @@
     <property name="last_opened_file_path" value="$USER_HOME$/Miniconda3/Scripts/conda.exe" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -188,16 +189,15 @@
       <workItem from="1558077193487" duration="543000" />
       <workItem from="1558077919932" duration="1459000" />
       <workItem from="1558082258148" duration="1407000" />
-      <workItem from="1558083718127" duration="5122000" />
+      <workItem from="1558083718127" duration="6936000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="81947000" />
+    <option name="totallyTimeSpent" value="83761000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="-6" width="1441" height="1013" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.13822894" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -302,8 +302,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/feature_engineering.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-540">
-          <caret line="116" column="4" selection-start-line="116" selection-start-column="4" selection-end-line="116" selection-end-column="4" />
+        <state relative-caret-position="275">
+          <caret line="519" column="20" lean-forward="true" selection-start-line="519" selection-end-line="520" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>

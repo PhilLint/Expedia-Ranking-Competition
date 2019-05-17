@@ -2,6 +2,7 @@ from sklearn import preprocessing as pp
 from sklearn import ensemble as en
 from data_import import *
 from data_import import oversample
+from math import log
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression
 from sklearn.experimental import enable_iterative_imputer
@@ -441,6 +442,7 @@ def generate_features(data):
     clip_outliers(data, "price_usd")
 
     ####################################################################################################################
+
     # CREATE NEW FEATURES
     data.loc[:, "price_diff"] = create_difference_feature(data, "visitor_hist_adr_usd", "price_usd")
     data.loc[:, "star_diff"] = create_difference_feature(data, "visitor_hist_starrating", "prop_starrating")
@@ -470,6 +472,8 @@ def generate_features(data):
     data.loc[:, "srch_diff_locscore2"] = create_difference_feature(data, "srch_average_loc2", "prop_location_score2")
     data.loc[:, "srch_diff_prop_review_score"] = create_difference_feature(data, "srch_average_prop_review_score",
                                                                            "prop_review_score")
+
+    numeric_feature_list = data.select_dtypes(include=['float64']).columns[:-2]
 
     # mean of all numerical features per group
     data.loc[:, "average_num_country"] = perform_preprocessing(data, feature_name=numeric_feature_list,
