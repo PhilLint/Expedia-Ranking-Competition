@@ -398,14 +398,14 @@ def impute(data, impute_list):
     for target in impute_list:
         preds = find_predictors_for_imputation(data, target, threshold=0.15)
         if len(preds) != 0:
-            numerical_imputation(data, target_name=target, feature_names=preds, type='lm')
+            numerical_imputation(data, target_name=target, feature_names=preds, imp_type='lm')
         else:
-            numerical_imputation(data, target, preds, type='random_forest')
+            numerical_imputation(data, target, preds, imp_type='random_forest')
 
 def add_norm_features(data, name, group_by):
     cols = [col for col in data if col.startswith(name)]
     if name == "price_usd":
-        new_srch_names = ["norm_" + s + "_" +str(group_by) for s in cols]
+        new_srch_names = ["norm_" + s + "_" + str(group_by) for s in cols]
     else:
         new_srch_names = ["norm_" + s for s in cols]
     for i in range(len(new_srch_names)):
@@ -432,7 +432,7 @@ def generate_features(data):
     # get features that need to be imputed
     impute_list = return_imputables(data)
     # impute all numerical values of impute_list
-    impute(data, impute_list[0:-1])
+    impute(data, impute_list)
     ####################################################################################################################
     # CLIP OUTLIERS
     # data.dtypes -> only floats interesting

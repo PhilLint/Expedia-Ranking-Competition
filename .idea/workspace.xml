@@ -2,10 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5bb38305-64f8-4f92-9587-987dd8d34dd7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Expedia-Ranking-Competition.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Expedia-Ranking-Competition.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_import.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_import.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/feature_engineering.py" beforeDir="false" afterPath="$PROJECT_DIR$/feature_engineering.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -34,8 +30,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/feature_engineering.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="201">
-              <caret line="566" column="25" selection-start-line="566" selection-end-line="567" />
+            <state relative-caret-position="-540">
+              <caret line="116" column="4" selection-start-line="116" selection-start-column="4" selection-end-line="116" selection-end-column="4" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -192,12 +188,12 @@
       <workItem from="1558077193487" duration="543000" />
       <workItem from="1558077919932" duration="1459000" />
       <workItem from="1558082258148" duration="1407000" />
-      <workItem from="1558083718127" duration="4618000" />
+      <workItem from="1558083718127" duration="5122000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="81443000" />
+    <option name="totallyTimeSpent" value="81947000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="-6" width="1441" height="1013" extended-state="6" />
@@ -306,8 +302,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/feature_engineering.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="201">
-          <caret line="566" column="25" selection-start-line="566" selection-end-line="567" />
+        <state relative-caret-position="-540">
+          <caret line="116" column="4" selection-start-line="116" selection-start-column="4" selection-end-line="116" selection-end-column="4" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
