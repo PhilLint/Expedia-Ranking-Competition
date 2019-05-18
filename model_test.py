@@ -11,9 +11,66 @@ from sklearn import preprocessing
 from scoring import score_prediction
 from sklearn.naive_bayes import GaussianNB
 
+# import finalized training data csv
+train = pd.read_csv("final_training_data.csv")
+# add target
+extract_train_features(train, target="book", max_rank=10)
+
+
+def impute_na(train):
+    na_ids = train.isna().any().values
+    feature_list = train.columns[na_ids.nonzero()[0]]
+    for feature in feature_list:
+        missing_ids = train.loc[train[feature].isna(), :].index.values
+        imp =  simple_imputation(train, feature, type="median")
+        train.loc[missing_ids, feature] = imp
+
+impute_na(train)
+
 
 def split_train_test(data, split=4):
     """
+    use random forest regression to predict propability of being booked for each row
+    :param X_train: x_train
+    :param y_test: y_train
+    :param n_estimators: passed to RandomForestRegressor
+    :return: vector with booking probability for each row
+    """
+    # not necessary anymore
+    #data = data.loc[:, data.columns != "date_time"]
+    print("length original data", len(data))
+
+    training, valid = split_train_test(data)
+
+
+    # train_down, number_books, number_clicks, id_list = oversample(train, max_rank=5)
+    print("length new data", len(train_down))
+
+    X_train = training.loc[:, training.columns != "target"]
+    y_train = training.loc[:, training.columns == "target"]
+
+    X_valid = valid.loc[:, valid.columns != "target"]
+    y_valid= valid.loc[:, valid.columns == "target"]
+
+    rf = RandomForestRegressor(n_estimators=100)
+
+    rf.fit(X_train, y_train["target"])
+    prediction_rf = rf.predict(X_valid)
+
+    return y_valid, prediction_rf
+
+
+def prediction_to_submission(prediction, y_test):
+
+    y_test["prediction"] = prediction
+    y_test_sorted = y_test.sort_values(["srch_id", "prediction"], ascending=[True, False])
+    return y_test_sorted[["srch_id", "prop_id"]]
+
+
+def split_train_test(data):
+    """
+    split data into train (0.66) and test (0.33) data
+
     split data into train (split-1/split) and test (1/split) data
     :param data: pandas df
     :param split: (int) determines proportional size of train/test
