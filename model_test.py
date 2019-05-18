@@ -25,10 +25,13 @@ def impute_na(train):
         imp =  simple_imputation(train, feature, type="median")
         train.loc[missing_ids, feature] = imp
 
+    not_used_target_info = ["click_bool", "booking_bool", "position", "random_bool"]
+    train = train.loc[:, ~train.columns.isin(not_used_target_info)]
+
 impute_na(train)
 
 
-def split_train_test(data, split=4):
+def split_train_test_simple(data, split=4):
     """
     use random forest regression to predict propability of being booked for each row
     :param X_train: x_train
@@ -44,7 +47,8 @@ def split_train_test(data, split=4):
 
 
     # train_down, number_books, number_clicks, id_list = oversample(train, max_rank=5)
-    print("length new data", len(train_down))
+    print("length train data", len(training))
+    print("length valid data", len(valid))
 
     X_train = training.loc[:, training.columns != "target"]
     y_train = training.loc[:, training.columns == "target"]
