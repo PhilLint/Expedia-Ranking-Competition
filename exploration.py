@@ -108,6 +108,8 @@ import seaborn
 from data_import import import_data
 from feature_engineering import *
 
+
+
 training = import_data('training_set_VU_DM.csv', nrows = 100000)
 test = import_data('test_set_VU_DM.csv', nrows = 100000)
 

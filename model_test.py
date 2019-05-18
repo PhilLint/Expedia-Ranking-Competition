@@ -7,10 +7,9 @@ from sklearn.metrics import accuracy_score
 from data_import import oversample
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
-from feature_selection import forest_feat_select
-from NDCG_k import calculate_score
+from scoring import calculate_score
 from sklearn.utils import shuffle
-
+from sklearn import preprocessing
 
 def rf_regressor(data, n_estimators):
     """
@@ -26,17 +25,21 @@ def rf_regressor(data, n_estimators):
 
     train, test = split_train_test(data)
 
+    train_down, _, _, _ = oversample(train, max_rank=5)
 
-    train_down, number_books, number_clicks, id_list = oversample(train, max_rank=5)
     print("length new data", len(train_down))
 
-    X_train = train_down[["prop_starrating", "prop_location_score1", "price_usd", "prop_log_historical_price"]]
-    y_train = train_down[["booking_bool", "prop_id", "srch_id", "click_bool"]]
+    X_train = preprocessing.scale(train_down[['srch_id', 'visitor_location_country_id', 'prop_id',
+                            'prop_location_score1', 'prop_log_historical_price', 'position',
+                            'promotion_flag', 'srch_length_of_stay', 'srch_saturday_night_bool', "price_usd"]])
+    y_train = preprocessing.scale(train_down[["booking_bool", "prop_id", "srch_id", "click_bool"]])
 
-    X_test = test[["prop_starrating", "prop_location_score1", "price_usd", "prop_log_historical_price"]]
-    y_test = test[["booking_bool", "prop_id", "srch_id", "click_bool"]]
+    X_test = preprocessing.scale(test[['srch_id', 'visitor_location_country_id', 'prop_id',
+                            'prop_location_score1', 'prop_log_historical_price', 'position',
+                            'promotion_flag', 'srch_length_of_stay', 'srch_saturday_night_bool', "price_usd"]])
+    y_test = preprocessing.scale(test[["booking_bool", "prop_id", "srch_id", "click_bool"]])
 
-    rf = RandomForestRegressor(n_estimators=100)
+    rf = RandomForestRegressor(n_estimators=n_estimators)
 
     rf.fit(X_train, y_train["booking_bool"])
     prediction_rf = rf.predict(X_test)
@@ -44,11 +47,6 @@ def rf_regressor(data, n_estimators):
     return y_test, prediction_rf
 
 
-def prediction_to_submission(prediction, y_test):
-
-    y_test["prediction"] = prediction
-    y_test_sorted = y_test.sort_values(["srch_id", "prediction"], ascending=[True, False])
-    return y_test_sorted[["srch_id", "prop_id"]]
 
 
 def split_train_test(data):
@@ -89,12 +87,12 @@ def test_submission(data, test_data):
 
 if __name__ == "__main__":
 
-    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv")
-    test_data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/test_set_VU_DM.csv")
-    y_test, prediction = test_submission(data, test_data)
-    #y_test, prediction = rf_regressor(data, 100)
+    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv", nrows=100_000)
+    test_data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/test_set_VU_DM.csv", nrows=200_000)
+    #y_test, prediction = test_submission(data, test_data)
+    y_test, prediction = rf_regressor(data, 250)
     submission = prediction_to_submission(prediction, y_test)
-    submission.to_csv("test_sub.csv", index=False)
+    #submission.to_csv("test_sub.csv", index=False)
 
     print(calculate_score(submission, y_test))
 
