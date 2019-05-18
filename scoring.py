@@ -78,8 +78,6 @@ def calculate_score(submission, y_test, k=K):
     return score
 
 
-
-
 def prediction_to_submission(prediction, y_test):
     """
     convert from single column pandas df with predicted booking_bool values into sorted submission file
@@ -93,7 +91,7 @@ def prediction_to_submission(prediction, y_test):
     return y_test_sorted[["srch_id", "prop_id"]]
 
 
-def score_prediction(prediction, y_test, k=K, to_print=True):
+def score_prediction(prediction, y_test, k=K, to_print=False):
     """
     Convert prediction into submission format and calculate ndcg score
     :param prediction: single column pandas df
