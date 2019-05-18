@@ -113,8 +113,4 @@ def score_prediction(prediction, y_test, k=K, to_print=False):
 
 
 if __name__ == "__main__":
-
-    sub = pd.read_csv("submission_sample.csv", nrows=64)
-    y_test = pd.read_csv("training_set_VU_DM.csv", nrows=64)
-
-
+    print("Nothing to do here...")
