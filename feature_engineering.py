@@ -58,7 +58,7 @@ def create_target_score(data, id_list, weight_rank=False):
     :return: data with added target score variable
     """
     # get specific ids
-    book_ids, click_ids, nothing_ids = id_list[0]
+    book_ids, click_ids, nothing_ids = id_list[
     # add 5 / 1 / 0 values to dataframe
     data.loc[book_ids, 'target'] = 5
     data.loc[click_ids, 'target'] = 1
@@ -569,9 +569,9 @@ def test_feature_extraction(data):
     """
     generate_features(data)
 
-generate_features(test)
 #generate_features(test)
-save_final_dataframe_csv(training_sample, "final_training")
+#generate_features(test)
+#save_final_dataframe_csv(training_sample, "final_training")
 #save_final_dataframe_csv(test, "test")
 # target is most important.
-extract_train_features(training_sample, target="book", max_rank=10)
+#extract_train_features(training_sample, target="book", max_rank=10)
