@@ -8,11 +8,11 @@ from sklearn.linear_model import LinearRegression
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 
-training = pd.read_csv(str('./data/') + 'training_set_VU_DM.csv', low_memory=False)
-# test = import_data('test_set_VU_DM.csv')
+#training = pd.read_csv(str('./data/') + 'training_set_VU_DM.csv', low_memory=False)
+#test = pd.read_csv(str('./data/') + 'test_set_VU_DM.csv', low_memory=False)
 
-training_sample, _,_ = oversample(training, max_rank=10)
-training_sample = training_sample.loc[:, training_sample.columns != "date_time"]
+#training_sample, _,_ = oversample(training, max_rank=10)
+#training_sample = training_sample.loc[:, training_sample.columns != "date_time"]
 #training_sample.to_csv("oversampled_training.csv")
 
 # get variable types
@@ -564,9 +564,9 @@ def test_feature_extraction(data):
     """
     generate_features(data)
 
-generate_features(training_sample)
+generate_features(test)
 #generate_features(test)
 save_final_dataframe_csv(training_sample, "final_training")
 #save_final_dataframe_csv(test, "test")
-# target is most important. 
+# target is most important.
 extract_train_features(training_sample, target="book", max_rank=10)

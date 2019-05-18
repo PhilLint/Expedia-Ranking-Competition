@@ -11,6 +11,22 @@ from feature_selection import forest_feat_select
 from NDCG_k import calculate_score
 from sklearn.utils import shuffle
 
+# import finalized training data csv
+train = pd.read_csv("final_training_data.csv")
+# add target
+extract_train_features(train, target="book", max_rank=10)
+
+
+def impute_na(train):
+    na_ids = train.isna().any().values
+    feature_list = train.columns[na_ids.nonzero()[0]]
+    for feature in feature_list:
+        missing_ids = train.loc[train[feature].isna(), :].index.values
+        imp =  simple_imputation(train, feature, type="median")
+        train.loc[missing_ids, feature] = imp
+
+impute_na(train)
+
 
 def rf_regressor(data, n_estimators):
     """
@@ -20,28 +36,28 @@ def rf_regressor(data, n_estimators):
     :param n_estimators: passed to RandomForestRegressor
     :return: vector with booking probability for each row
     """
-
-    data = data.loc[:, data.columns != "date_time"]
+    # not necessary anymore
+    #data = data.loc[:, data.columns != "date_time"]
     print("length original data", len(data))
 
-    train, test = split_train_test(data)
+    training, valid = split_train_test(data)
 
 
-    train_down, number_books, number_clicks, id_list = oversample(train, max_rank=5)
+    # train_down, number_books, number_clicks, id_list = oversample(train, max_rank=5)
     print("length new data", len(train_down))
 
-    X_train = train_down[["prop_starrating", "prop_location_score1", "price_usd", "prop_log_historical_price"]]
-    y_train = train_down[["booking_bool", "prop_id", "srch_id", "click_bool"]]
+    X_train = training.loc[:, training.columns != "target"]
+    y_train = training.loc[:, training.columns == "target"]
 
-    X_test = test[["prop_starrating", "prop_location_score1", "price_usd", "prop_log_historical_price"]]
-    y_test = test[["booking_bool", "prop_id", "srch_id", "click_bool"]]
+    X_valid = valid.loc[:, valid.columns != "target"]
+    y_valid= valid.loc[:, valid.columns == "target"]
 
     rf = RandomForestRegressor(n_estimators=100)
 
-    rf.fit(X_train, y_train["booking_bool"])
-    prediction_rf = rf.predict(X_test)
+    rf.fit(X_train, y_train["target"])
+    prediction_rf = rf.predict(X_valid)
 
-    return y_test, prediction_rf
+    return y_valid, prediction_rf
 
 
 def prediction_to_submission(prediction, y_test):
