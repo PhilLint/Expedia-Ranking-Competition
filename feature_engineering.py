@@ -13,7 +13,7 @@ training = pd.read_csv(str('./data/') + 'training_set_VU_DM.csv', low_memory=Fal
 
 training_sample, _,_ = oversample(training, max_rank=10)
 training_sample = training_sample.loc[:, training_sample.columns != "date_time"]
-training_sample.to_csv("oversampled_training.csv")
+#training_sample.to_csv("oversampled_training.csv")
 
 # get variable types
 #df = training
@@ -324,7 +324,6 @@ def normalize_all_numerical(data, feature_list):
     """
     for feature in feature_list:
         data.loc[:, feature] = normalize_feature(data, feature)
-    return
 
 def find_predictors_for_imputation(data, target_name, threshold=0.15):
     """
@@ -531,10 +530,9 @@ def save_final_dataframe_csv(data, name):
     :param data:
     :return:
     """
-    generate_features(data)
     data.to_csv(path_or_buf= name + "_data.csv", index=False)
 
-def extract_train_features(data, preprocessed_data=False, target="book", max_rank=None):
+def extract_train_features(data, target="book", max_rank=None):
     """
     Extract the traning features from the data which already incorporates the target
     as either label or score.
@@ -544,10 +542,8 @@ def extract_train_features(data, preprocessed_data=False, target="book", max_ran
     :param preprocessed_data
     :return: new data with only relevant features for training
     """
-    if ~ preprocessed_data:
-        generate_features(data)
     # Create Target
-    id_list = get_id_list(data, max_rank=max_rank)
+    id_list, _, _ = get_id_list(data, max_rank=max_rank)
     if target == "book":
         create_label(data, three_classes=False)
     elif target == "book_click":
@@ -570,5 +566,7 @@ def test_feature_extraction(data):
 
 generate_features(training_sample)
 #generate_features(test)
-save_final_dataframe_csv(training, "training")
+save_final_dataframe_csv(training_sample, "final_training")
 #save_final_dataframe_csv(test, "test")
+# target is most important. 
+extract_train_features(training_sample, target="book", max_rank=10)
