@@ -40,7 +40,7 @@ def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
 
     scores = []
     for i in range(k_folds):
-        print(f"Fold {i+1} running...\n")
+        print(f"Fold {i+1} running...")
         # split data
 
         if target == "booking_bool":
@@ -58,14 +58,17 @@ def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
         y_test = test
 
         # fit model
+        print(f"Fitting model...")
         estimator.fit(X_train, y_train)
 
         # predict
+        print(f"Generating predictions...")
         prediction = estimator.predict(X_test)
 
         # score
         score = score_prediction(prediction, y_test, to_print=False)
         scores.append(score)
+        print(f"Fold {i+1} finished!")
 
     if to_print:
             print(f"Prediction scores for {k_folds} are:\n {scores}")
