@@ -89,11 +89,6 @@ def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
         print(f"Fold {i+1} running...")
 
         train, test = split_train_test(data, split)
-
-        # downsample training data
-        print(f"Downsampling training data...\n")
-        extract_train_features(data=train, target="book", max_rank=5)
-
         X_train = train.drop(columns=["booking_bool", "click_bool", "position"])
         y_train = train[target]
         X_test = test.drop(columns=["booking_bool", "click_bool", "position"])
