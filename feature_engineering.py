@@ -9,7 +9,9 @@ from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 
 #training = pd.read_csv(str('./data/') + 'training_set_VU_DM.csv', low_memory=False)
-#test = pd.read_csv(str('./data/') + 'test_set_VU_DM.csv', low_memory=False)
+test = pd.read_csv(str('./data/') + 'test_set_VU_DM.csv', low_memory=False)
+test = test.loc[:, test.columns != "date_time"]
+
 
 #training_sample, _,_ = oversample(training, max_rank=10)
 #training_sample = training_sample.loc[:, training_sample.columns != "date_time"]
@@ -336,7 +338,10 @@ def find_predictors_for_imputation(data, target_name, threshold=0.15):
     # get correlations of features on the target variable (to be imputed one to find possible predictors for a
     # linear regression
     correlations = data.corr(method="spearman").iloc[0::2][target_name]
+    itself = np.where(correlations == 1.0)[0]
     over_threshold = np.where(correlations > threshold)[0]
+    # if present delete from array
+    over_threshold  = over_threshold[over_threshold != itself]
     predictor_names = correlations.axes[0][over_threshold].tolist()
     return predictor_names
 
@@ -396,11 +401,11 @@ def impute(data, impute_list):
     :return: no return.
     """
     for target in impute_list:
-        preds = find_predictors_for_imputation(data, target, threshold=0.15)
-        if len(preds) != 0:
+        preds = find_predictors_for_imputation(data, target_name=target, threshold=0.15)
+        if len(preds) > 2:
             numerical_imputation(data, target_name=target, feature_names=preds, imp_type='lm')
         else:
-            numerical_imputation(data, target, preds, imp_type='random_forest')
+            numerical_imputation(data, target_name=target, feature_names=preds, imp_type='random_forest')
 
 def add_norm_features(data, name, group_by):
     cols = [col for col in data if col.startswith(name)]
