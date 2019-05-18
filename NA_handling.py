@@ -223,9 +223,6 @@ if __name__ == "__main__":
 
 
     data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_set_VU_DM.csv", nrows=1_000_000)
-    competition = data[["comp1_rate", "comp2_rate", "comp3_rate", "comp4_rate", "comp5_rate", "comp6_rate", "comp7_rate", "comp8_rate"]]
 
 
-    data["comp_overall"] = competition.sum(axis=1, skipna=True)
-    print("na count:", sum(data["comp_overall"].isnull()))
-    print("!= 0: ", len(data.loc[data["comp_overall"] != 0]))
+

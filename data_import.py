@@ -1,10 +1,5 @@
 import pandas as pd
 import numpy as np
-import numpy.random as rnd
-import matplotlib.pyplot as plt
-from math import log, floor
-import seaborn
-rnd.seed(42)
 
 def import_data(filename, nrows=None):
     """
@@ -14,14 +9,20 @@ def import_data(filename, nrows=None):
     :return: od dataframe
     """
     if nrows is None:
-        data = pd.read_csv(str('./data/') + filename)
+        mylist = []
+        for chunk in pd.read_csv(str('./data/') + filename, low_memory=False, chunksize=2000):
+            mylist.append(chunk)
+        data = pd.DataFrame(mylist)
+        del mylist
     else:
-        data = pd.read_csv(str('./data/') + filename, nrows=nrows)
-    # remove time stamp of query
+        mylist = []
+        for chunk in pd.read_csv(str('./data/') + filename, low_memory=False, chunksize=2000, nrows=nrows):
+            mylist.append(chunk)
+        data = pd.DataFrame(mylist)
+        del mylist    # remove time stamp of query
     data = data.loc[:, data.columns != "date_time"]
 
     return data
-
 
 def filter_nothing_instances(data, nothing_ids=None, max_rank=None):
     """
@@ -41,10 +42,9 @@ def filter_nothing_instances(data, nothing_ids=None, max_rank=None):
 
     return nothing_ids
 
-
-def get_id_list(data, max_rank=None):
+def get_id_list(data, max_rank):
     """
-
+    Get book, click and nothing ids for later use.
     :param data:
     :return:
     """
@@ -59,17 +59,12 @@ def get_id_list(data, max_rank=None):
     number_book = book_ids.size
     # number clicked
     number_clicks = click_ids.size
-
     # only keep books and clicks
     # filter nothing instances down either randomly or only keep nothing instances
     # of position smaller than max_rank
     filtered_nothing_ids = filter_nothing_instances(data, nothing_ids=nothing_ids, max_rank=max_rank)
-
     id_list = [book_ids, click_ids, filtered_nothing_ids]
-
     return id_list, number_book, number_clicks
-
-
 
 def oversample(data, max_rank=None, print_desc=False):
     """
@@ -87,23 +82,3 @@ def oversample(data, max_rank=None, print_desc=False):
         print("Number of observations: " + str(len(new_training)) + " ||  number of bookings: " + str(number_books) +
               " ||  number of clicks: " + str(number_clicks))
     return data, number_book, number_clicks,
-
-
-if __name__ == "__main__":
-    training = import_data('training_set_VU_DM.csv', nrows=100000)
-    test = import_data('test_set_VU_DM.csv', nrows=100000)
-
-    plt.figure(figsize=(12, 8))
-    ax = seaborn.countplot(x="random_bool", data=training)
-    plt.title('')
-    plt.xlabel('Number of Axes')
-    plt.show()
-
-    new_training, number_books, number_clicks, id_list = oversample(training)
-    # plot position to frequency booked (1) or not booked (0)
-    new_training['position'].hist(by=new_training['booking_bool'])
-    plt.show()
-    # now with max_rank
-    new_training, number_books, number_clicks, id_list = oversample(training, 15)
-    new_training['position'].hist(by=new_training['booking_bool'])
-    plt.show()
