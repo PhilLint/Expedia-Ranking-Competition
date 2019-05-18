@@ -67,14 +67,16 @@ def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
         score = score_prediction(prediction, y_test, to_print=False)
         scores.append(score)
 
-        if to_print:
+    if to_print:
             print(f"Prediction scores for {k_folds} are:\n {scores}")
-        else:
-            return scores
+    else:
+        return scores
 
 
 if __name__ == "__main__":
     target = "booking_bool"
-    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_data.csv", nrows=100_000)
-    estimator = GaussianNB()
+    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_data.csv")
+    data = data.sample(n=100_000)
+    data = data.dropna()
+    estimator = RandomForestRegressor(n_estimators=100)
     cross_validate(estimator=estimator, data=data, target=target, k_folds=3, to_print=True)
