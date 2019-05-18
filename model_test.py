@@ -1,20 +1,12 @@
 import numpy as np
 import pandas as pd
-from sklearn.feature_selection import RFE
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.utils import shuffle
-from sklearn import preprocessing
 from scoring import score_prediction
-from sklearn.naive_bayes import GaussianNB
-
-# import finalized training data csv
-train = pd.read_csv("final_training_data.csv")
-# add target
-extract_train_features(train, target="book", max_rank=10)
+from feature_engineering import simple_imputation
+from feature_engineering import extract_train_features
 
 
 def impute_na(train):
@@ -22,13 +14,11 @@ def impute_na(train):
     feature_list = train.columns[na_ids.nonzero()[0]]
     for feature in feature_list:
         missing_ids = train.loc[train[feature].isna(), :].index.values
-        imp =  simple_imputation(train, feature, type="median")
+        imp = simple_imputation(train, feature, type="median")
         train.loc[missing_ids, feature] = imp
 
-impute_na(train)
 
-
-def split_train_test(data, split=4):
+def split_train_test_(data, split=4):
     """
     use random forest regression to predict propability of being booked for each row
     :param X_train: x_train
@@ -67,9 +57,8 @@ def prediction_to_submission(prediction, y_test):
     return y_test_sorted[["srch_id", "prop_id"]]
 
 
-def split_train_test(data):
+def split_train_test(data, split=4):
     """
-    split data into train (0.66) and test (0.33) data
 
     split data into train (split-1/split) and test (1/split) data
     :param data: pandas df
@@ -98,20 +87,16 @@ def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
     scores = []
     for i in range(k_folds):
         print(f"Fold {i+1} running...")
-        # split data
-
-        if target == "booking_bool":
-            secondary = "click_bool"
-        elif target == "click_bool":
-            secondary = "booking_bool"
 
         train, test = split_train_test(data, split)
 
-        train_cols = [col for col in train.columns if col not in [target, secondary]]
+        # downsample training data
+        print(f"Downsampling training data...\n")
+        extract_train_features(data=train, target="book", max_rank=5)
 
-        X_train = train[train_cols]
+        X_train = train.drop(columns=["booking_bool", "click_bool", "position"])
         y_train = train[target]
-        X_test = test[train_cols]
+        X_test = test.drop(columns=["booking_bool", "click_bool", "position"])
         y_test = test
 
         # fit model
@@ -128,7 +113,7 @@ def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
         print(f"Fold {i+1} finished!")
 
     if to_print:
-            print(f"Prediction scores for {k_folds} are:\n {scores}")
+            print(f"Prediction scores for {k_folds} folds are:\n {scores}")
     else:
         return scores
 
@@ -136,7 +121,14 @@ def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
 if __name__ == "__main__":
     target = "booking_bool"
     data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_data.csv")
-    data = data.sample(n=100_000)
-    data = data.dropna()
+    impute_na(data)
     estimator = RandomForestRegressor(n_estimators=100)
-    cross_validate(estimator=estimator, data=data, target=target, k_folds=3, to_print=True)
+    cross_validate(estimator=estimator, data=data, target=target, k_folds=1, to_print=True)
+
+    """
+    # import finalized training data csv
+    train = pd.read_csv("final_training_data.csv")
+    # add target
+    extract_train_features(train, target="book", max_rank=10)
+
+    """
