@@ -8,19 +8,12 @@ from sklearn.linear_model import LinearRegression
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 
+
+
 #training = pd.read_csv(str('./data/') + 'training_set_VU_DM.csv', low_memory=False)
 #test = pd.read_csv(str('./data/') + 'test_set_VU_DM.csv', low_memory=False)
 #test = test.loc[:, test.columns != "date_time"]
 
-
-#training_sample, _,_ = oversample(training, max_rank=10)
-#training_sample = training_sample.loc[:, training_sample.columns != "date_time"]
-#training_sample.to_csv("oversampled_training.csv")
-
-# get variable types
-#df = training
-#dtypeCount =[df.iloc[:,i].apply(type).value_counts() for i in range(df.shape[1])]
-#dtypeCount
 
 def clip_outliers(data, feature_name, lower_quantile=False, upper_quantile=True, manual_upper=None):
     """
@@ -100,20 +93,24 @@ def create_label(data, three_classes=False):
 #     sub = sub.loc[sub["prop_country_id"].isin(countries),:]
 
 
-def simple_imputation(data, feature_name, type='mean'):
+def simple_imputation(data, feature_name, imp_type='mean'):
     """
-    Impute NaN values with mean or median of vector
+    Impute NaN values with mean or median or min of vector
     :param data: np array vector
     :return: imputed vector
     """
     # find missing ids
     missing_ids = data.loc[data[feature_name].isna(), :].index.values
-    if type == 'mean':
+    if imp_type == 'mean':
         # find mean
         imp_val = data[feature_name].mean()
-    elif type == 'median':
+    elif imp_type == 'median':
         # find median
         imp_val = data[feature_name].median()
+    elif imp_type == 'min':
+        # find median
+        imp_val = data[feature_name].min()
+
     imputed_feature = [imp_val] * len(data.loc[missing_ids, feature_name])
     return imputed_feature
 
@@ -125,10 +122,9 @@ def numerical_imputation(data, target_name, feature_names, imp_type='mean'):
     :param feature_name: feature to be predicted
     :return: predicted feature
     """
+    missing_ids = data.loc[data[target_name].isna(), :].index.values
+    not_missing_ids = data.loc[~data[target_name].isna(), :].index.values
     if imp_type == "random_forest" or imp_type == "lm":
-        missing_ids = data.loc[data[target_name].isna(), :].index.values
-        not_missing_ids = data.loc[~data[target_name].isna(), :].index.values
-
         # get target array
         imp = IterativeImputer(max_iter=500, random_state=0)
         if imp_type == "random_forest":
@@ -161,7 +157,7 @@ def numerical_imputation(data, target_name, feature_names, imp_type='mean'):
         imputed_feature = reg.predict(imputed.loc[missing_ids, imputed.columns.isin(feature_names)])
     else:
         # apply simple imputation of type mean or median
-        imputed_feature = simple_imputation(data, target_name, type=imp_type)
+        imputed_feature = simple_imputation(data, target_name, imp_type=imp_type)
 
     # fill in imputated values
     data.loc[missing_ids, target_name] = imputed_feature
@@ -338,7 +334,10 @@ def find_predictors_for_imputation(data, target_name, threshold=0.15):
     # get correlations of features on the target variable (to be imputed one to find possible predictors for a
     # linear regression
     correlations = data.corr(method="spearman").iloc[0::2][target_name]
+    itself = np.where(correlations == 1.0)[0]
     over_threshold = np.where(correlations > threshold)[0]
+    # if present delete from array
+    over_threshold = over_threshold[over_threshold != itself]
     predictor_names = correlations.axes[0][over_threshold].tolist()
     return predictor_names
 
@@ -398,11 +397,19 @@ def impute(data, impute_list):
     :return: no return.
     """
     for target in impute_list:
-        preds = find_predictors_for_imputation(data, target_name=target, threshold=0.15)
-        if len(preds) > 2:
-            numerical_imputation(data, target_name=target, feature_names=preds, imp_type='lm')
+        if target =="visitor_hist_starrating":
+            numerical_imputation(data, target_name=target, feature_names=None, imp_type='min')
+        elif target == "visitor_hist_adr_usd":
+            numerical_imputation(data, target_name=target, feature_names=None, imp_type='mean')
+        elif target == "srch_query_affinity_score":
+            numerical_imputation(data, target_name=target, feature_names=None, imp_type='min')
+
         else:
-            numerical_imputation(data, target_name=target, feature_names=preds, imp_type='random_forest')
+            preds = find_predictors_for_imputation(data, target_name=target, threshold=0.15)
+            if len(preds) > 2:
+                numerical_imputation(data, target_name=target, feature_names=preds, imp_type='lm')
+            else:
+                numerical_imputation(data, target_name=target, feature_names=preds, imp_type='random_forest')
 
 def add_norm_features(data, name, group_by):
     cols = [col for col in data if col.startswith(name)]
@@ -566,9 +573,21 @@ def test_feature_extraction(data):
     """
     generate_features(data)
 
-#generate_features(test)
-#generate_features(test)
-#save_final_dataframe_csv(training_sample, "final_training")
-#save_final_dataframe_csv(test, "test")
-# target is most important.
-#extract_train_features(training_sample, target="book", max_rank=10)
+if __name__ == "__main__":
+    # training = pd.read_csv(str('./data/') + 'training_set_VU_DM.csv', low_memory=False)
+    training = pd.read_csv(str('./data/') + 'training_set_VU_DM.csv', low_memory=False)
+    training = training.loc[:, training.columns != "date_time"]
+
+    training_sample, _,_ ,_ = oversample(training, max_rank=10)
+    training_sample.to_csv("oversampled_training.csv")
+
+    # get variable types
+    # df = training
+    # dtypeCount =[df.iloc[:,i].apply(type).value_counts() for i in range(df.shape[1])]
+    # dtypeCount
+    #generate_features(test)
+    #generate_features(test)
+    #save_final_dataframe_csv(training_sample, "final_training")
+    #save_final_dataframe_csv(test, "test")
+    # target is most important.
+    #extract_train_features(training_sample, target="book", max_rank=10)
