@@ -95,7 +95,7 @@ def create_label(data, three_classes=False):
 
 def simple_imputation(data, feature_name, type='mean'):
     """
-    Impute NaN values with mean or median of vector
+    Impute NaN values with mean or median or min of vector
     :param data: np array vector
     :return: imputed vector
     """
@@ -107,6 +107,10 @@ def simple_imputation(data, feature_name, type='mean'):
     elif type == 'median':
         # find median
         imp_val = data[feature_name].median()
+    elif type == 'min':
+        # find median
+        imp_val = data[feature_name].min()
+
     imputed_feature = [imp_val] * len(data.loc[missing_ids, feature_name])
     return imputed_feature
 
@@ -118,10 +122,9 @@ def numerical_imputation(data, target_name, feature_names, imp_type='mean'):
     :param feature_name: feature to be predicted
     :return: predicted feature
     """
+    missing_ids = data.loc[data[target_name].isna(), :].index.values
+    not_missing_ids = data.loc[~data[target_name].isna(), :].index.values
     if imp_type == "random_forest" or imp_type == "lm":
-        missing_ids = data.loc[data[target_name].isna(), :].index.values
-        not_missing_ids = data.loc[~data[target_name].isna(), :].index.values
-
         # get target array
         imp = IterativeImputer(max_iter=500, random_state=0)
         if imp_type == "random_forest":
@@ -391,11 +394,19 @@ def impute(data, impute_list):
     :return: no return.
     """
     for target in impute_list:
-        preds = find_predictors_for_imputation(data, target_name=target, threshold=0.15)
-        if len(preds) > 2:
-            numerical_imputation(data, target_name=target, feature_names=preds, imp_type='lm')
+        if target =="visitor_hist_starrating":
+            numerical_imputation(data, target_name=target, feature_names=None, imp_type='min')
+        elif target == "visitor_hist_adr_usd":
+            numerical_imputation(data, target_name=target, feature_names=None, imp_type='mean')
+        elif target == "srch_query_affinity_score":
+            numerical_imputation(data, target_name=target, feature_names=None, imp_type='min')
+
         else:
-            numerical_imputation(data, target_name=target, feature_names=preds, imp_type='random_forest')
+            preds = find_predictors_for_imputation(data, target_name=target, threshold=0.15)
+            if len(preds) > 2:
+                numerical_imputation(data, target_name=target, feature_names=preds, imp_type='lm')
+            else:
+                numerical_imputation(data, target_name=target, feature_names=preds, imp_type='random_forest')
 
 def add_norm_features(data, name, group_by):
     cols = [col for col in data if col.startswith(name)]
@@ -565,7 +576,6 @@ if __name__ == "__main__":
     training = training.loc[:, training.columns != "date_time"]
 
     training_sample, _,_ ,_ = oversample(training, max_rank=10)
-    training_sample = training_sample.loc[:, training_sample.columns != "date_time"]
     training_sample.to_csv("oversampled_training.csv")
 
     # get variable types
