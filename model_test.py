@@ -7,7 +7,14 @@ from sklearn.utils import shuffle
 from scoring import score_prediction
 from feature_engineering import extract_train_features
 from feature_engineering import simple_imputation
+from sklearn.naive_bayes import GaussianNB
+from feature_engineering import *
+import random
 
+# import finalized training data csv
+train = pd.read_csv("final_training_data.csv")
+# add target
+extract_train_features(train, target="book", max_rank=10)
 
 def impute_na(train):
     na_ids = train.isna().any().values
@@ -17,9 +24,9 @@ def impute_na(train):
         imp =  simple_imputation(train, feature, type="median")
         train.loc[missing_ids, feature] = imp
 
-    not_used_target_info = ["click_bool", "booking_bool", "position", "random_bool"]
-    train = train.loc[:, ~train.columns.isin(not_used_target_info)]
+    return train
 
+train = impute_na(train)
 
 def split_train_test_simple(data, split=4):
     """
@@ -35,6 +42,9 @@ def split_train_test_simple(data, split=4):
 
     training, valid = split_train_test(data)
 
+    # delete booking bool ,... from training data but keep for test data for evaluation
+    not_used_target_info = ["click_bool", "booking_bool", "position", "random_bool"]
+    training = training.loc[:, ~training.columns.isin(not_used_target_info)]
 
     # train_down, number_books, number_clicks, id_list = oversample(train, max_rank=5)
     print("length train data", len(training))
@@ -44,8 +54,9 @@ def split_train_test_simple(data, split=4):
     y_train = training.loc[:, training.columns == "target"]
 
     X_valid = valid.loc[:, valid.columns != "target"]
-    y_valid= valid.loc[:, valid.columns == "target"]
+    y_valid = valid
 
+    random.seed(42)
     rf = RandomForestRegressor(n_estimators=100)
 
     rf.fit(X_train, y_train["target"])
