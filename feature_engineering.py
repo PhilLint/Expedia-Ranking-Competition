@@ -9,8 +9,8 @@ from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 
 #training = pd.read_csv(str('./data/') + 'training_set_VU_DM.csv', low_memory=False)
-test = pd.read_csv(str('./data/') + 'test_set_VU_DM.csv', low_memory=False)
-test = test.loc[:, test.columns != "date_time"]
+#test = pd.read_csv(str('./data/') + 'test_set_VU_DM.csv', low_memory=False)
+#test = test.loc[:, test.columns != "date_time"]
 
 
 #training_sample, _,_ = oversample(training, max_rank=10)
@@ -60,15 +60,15 @@ def create_target_score(data, id_list, weight_rank=False):
     # get specific ids
     book_ids, click_ids, nothing_ids = id_list
     # add 5 / 1 / 0 values to dataframe
+    data["target"] = 0
     data.loc[book_ids, 'target'] = 5
     data.loc[click_ids, 'target'] = 1
-    data.loc[nothing_ids, 'target'] = 0
     # if weight also considered
     if weight_rank:
         # temporary target scores from before
-        tmp_score = data.loc[:, 'target']
+        tmp_score = data['target']
         # old target_score(5,1,0) + rank_score as described in report
-        data.loc[:, 'target'] = tmp_score + 2 - (2 / (1 + np.exp(0.1*(-data['position']+1))))
+        data['target'] = tmp_score + 2 - (2 / (1 + np.exp(0.1*(-data['position']+1))))
 
 # demo
 #data_with_target = create_target_score(new_training, id_list, weight_rank=True)
@@ -83,10 +83,10 @@ def create_label(data, three_classes=False):
     """
     if three_classes:
         # nothing=0; clickes not booked = 1; booked and clicked = 2
-        data.loc[:,'target'] =  data['booking_bool'] + data['click_bool']
+        data.loc[:,'target'] = data['booking_bool'] + data['click_bool']
     else:
         # only booked / not booked
-        data.loc[:, 'target'] =  data['booking_bool']
+        data.loc[:,'target'] = data['booking_bool']
 #demo
 #data_with_target = create_label(training)
 

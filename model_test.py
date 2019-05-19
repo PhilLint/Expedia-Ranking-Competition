@@ -7,14 +7,8 @@ from sklearn.utils import shuffle
 from scoring import score_prediction
 from feature_engineering import extract_train_features
 from feature_engineering import simple_imputation
-from sklearn.naive_bayes import GaussianNB
 from feature_engineering import *
 import random
-
-# import finalized training data csv
-train = pd.read_csv("final_training_data.csv")
-# add target
-extract_train_features(train, target="book", max_rank=10)
 
 def impute_na(train):
     na_ids = train.isna().any().values
@@ -26,7 +20,6 @@ def impute_na(train):
 
     return train
 
-train = impute_na(train)
 
 def split_train_test_simple(data, split=4):
     """
@@ -89,7 +82,7 @@ def split_train_test(data, split=4):
 
 def random_split_train_test(data, split=0.75):
 
-    srch_ids = shuffle(data["srch_id"].values)
+    srch_ids = shuffle(data["srch_id"].value_counts().index.tolist())
     bound = int(len(srch_ids)*split)
 
     train_ids = srch_ids[:bound]
@@ -98,6 +91,7 @@ def random_split_train_test(data, split=0.75):
     train = data.loc[data["srch_id"].isin(train_ids)]
     test = data.loc[data["srch_id"].isin(test_ids)]
     return train,test
+
 
 def cross_validate(estimator, data, k_folds=3, split=4, to_print=False):
     """
@@ -140,32 +134,42 @@ def cross_validate(estimator, data, k_folds=3, split=4, to_print=False):
         return scores
 
 
+def get_sample(data, size):
+    srch_ids = shuffle(data["srch_id"].value_counts().index.tolist())
+    bound = int(len(srch_ids) * size)
+    sample_ids = srch_ids[:bound]
+    sample = data.loc[data["srch_id"].isin(sample_ids)]
+    return sample
+
+
 if __name__ == "__main__":
-    targets = ["book", "book_click", "score", "score_rank"]
+    pd.options.mode.chained_assignment = None
+    targets = ["book", "score", "score_rank"]
     n_estimators = [50, 100, 250]
-    max_ranks = [5, 10]
+    max_rank = 10
+    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_data.csv")
+    data = impute_na(data)
+    sample = get_sample(data=data, size=0.1)
 
     for target in targets:
         for n_estimator in n_estimators:
-            for max_rank in max_ranks:
 
-                print(f"\nCURRENT CONFIGURATION")
-                print("########################################################################")
-                print(f"Target = {target}")
-                print(f"N_trees = {n_estimator}")
-                print(f"Max_rank = {max_rank}")
-                print("########################################################################")
+            print(f"\nCURRENT CONFIGURATION")
+            print("########################################################################")
+            print(f"Target = {target}")
+            print(f"N_trees = {n_estimator}")
+            print(f"Max_rank = {max_rank}")
+            print("########################################################################")
 
-                data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_data.csv")
-                impute_na(data)
-                extract_train_features(data=data, target=target,max_rank=max_rank)
-                estimator = RandomForestRegressor(n_estimators=n_estimator)
-                cross_validate(estimator=estimator, data=data, k_folds=1, to_print=True)
+            extract_train_features(data=sample, target=target, max_rank=max_rank)
+            estimator = RandomForestRegressor(n_estimators=n_estimator, max_depth=30, n_jobs=-1)
+            cross_validate(estimator=estimator, data=sample, k_folds=1, to_print=True)
 
-    """
-    # import finalized training data csv
-    train = pd.read_csv("final_training_data.csv")
-    # add target
-    extract_train_features(train, target="book", max_rank=10)
 
-    """
+            """                            
+            # import finalized training data csv
+            train = pd.read_csv("final_training_data.csv")
+            # add target
+            extract_train_features(train, target="book", max_rank=10)
+            train = impute_na(train)
+            """
