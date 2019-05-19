@@ -92,7 +92,6 @@ def random_split_train_test(data, split=0.75):
     test = data.loc[data["srch_id"].isin(test_ids)]
     return train,test
 
-
 def cross_validate(estimator, data, type_est, k_folds=3, split=4, to_print=False):
     """
     cross-validate over k-folds

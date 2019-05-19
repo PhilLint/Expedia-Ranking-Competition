@@ -37,8 +37,19 @@ def decreasing_features_select(data, estimator):
             cols = selector.support_
             print("Features used: ")
             print(X_train.loc[:, cols].columns)
-            pred = selector.predict(X_test)
+            pred = clf_to_predict(estimator, X_test)
             score_prediction(pred, y_test, to_print=True)
+
+
+def clf_to_predict(estimator, X_test):
+
+    # calculate weighted sum (probability of class 5 weighs 5x)
+    predict_array = estimator.predict_proba(X_test)
+    # weigh click_book instances double
+    predict_array[:,2] = predict_array[:,2]*3
+    prediction = predict_array[:,[1,2]].sum(axis=1)
+
+    return prediction
 
 
 if __name__ == "main":
