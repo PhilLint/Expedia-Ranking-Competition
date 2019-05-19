@@ -4,6 +4,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.utils import shuffle
+from joblib import dump, load
 from scoring import score_prediction
 from feature_engineering import extract_train_features
 from feature_engineering import simple_imputation
@@ -15,7 +16,7 @@ def impute_na(train):
     feature_list = train.columns[na_ids.nonzero()[0]]
     for feature in feature_list:
         missing_ids = train.loc[train[feature].isna(), :].index.values
-        imp =  simple_imputation(train, feature, type="median")
+        imp =  simple_imputation(train, feature, imp_type="median")
         train.loc[missing_ids, feature] = imp
 
     return train
@@ -93,15 +94,17 @@ def random_split_train_test(data, split=0.75):
     return train,test
 
 
-def cross_validate(estimator, data, type_est, k_folds=3, split=4, to_print=False):
+def cross_validate(estimator, data, type_est, pred_weight, target, k_folds=3, split=4, to_print=False, save_model=False):
     """
     cross-validate over k-folds
     :param estimator: sklearn estimator instance
     :param data: whole dataset
-    :param target: df column serving as target
+    :param type_est: type of estimator used (classifier, regression)
+    :param pred_weight: weighting of booking_bool and click_bool predictions in classification
     :param k_folds: number of folds to perform
     :param split: split param for split_train_test funct
     :param to_print: if True scores are printed and not returned
+    :param save_model: if True save model
     :return: if to_print=False function returns list with scores
     """
 
@@ -110,9 +113,9 @@ def cross_validate(estimator, data, type_est, k_folds=3, split=4, to_print=False
         print(f"Fold {i+1} running...")
 
         train, test = split_train_test(data, split)
-        X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position"])
+        X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool"])
         y_train = train["target"]
-        X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position"])
+        X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool"])
         y_test = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
 
         # fit model
@@ -128,17 +131,20 @@ def cross_validate(estimator, data, type_est, k_folds=3, split=4, to_print=False
                 # calculate weighted sum (probability of class 5 weighs 5x)
                 predict_array = estimator.predict_proba(X_test)
                 # weigh click_book instances double
-                predict_array[:,2] = predict_array[:,2]*3.14
-                prediction = predict_array[:,[1,2]].sum(axis=1)
+                predict_array[:, 2] = predict_array[:, 2]*pred_weight
+                prediction = predict_array[:, [1, 2]].sum(axis=1)
             else:
                 print("ERROR. no using classification with score_rank!")
+                return
 
         elif type_est == "regression":
-            prediction = estimator.predict_proba(X_test)
+            prediction = estimator.predict(X_test)
         else:
             print("Invalid type_est specified!")
             return
 
+        if save_model:
+            dump(estimator, "model905.joblib")
         # score
         score = score_prediction(prediction, y_test, to_print=False)
         scores.append(score)
@@ -158,16 +164,37 @@ def get_sample(data, size):
     return sample
 
 
-if __name__ == "__main__":
-    pd.options.mode.chained_assignment = None
-    targets = ["score"]
-    n_estimators = [250]
-    max_rank = 10
-    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_fixed_data.csv")
-    data = impute_na(data)
-    sample = get_sample(data=data, size=0.1)
-    type_est = "classifier"
+def load_clf_to_prediction(filename, X_test):
 
+    clf = load(filename)
+    predict_array = clf.predict_proba(X_test)
+    # weigh click_book instances double
+    predict_array[:, 2] = predict_array[:, 2] * pred_weight
+    prediction = predict_array[:, [1, 2]].sum(axis=1)
+    return prediction
+
+
+
+if __name__ == "__main__":
+    # constants
+    pd.options.mode.chained_assignment = None
+    target = "score"
+    n_estimators = [300]
+    max_rank = 10
+    type_est = "classifier"
+    pred_weight = 3
+
+    #data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_fixed_data.csv")
+    #data = impute_na(data)
+    #sample = get_sample(data=data, size=1)
+
+    test_data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_test_data.csv")
+    test_data = impute_na(test_data)
+    prediction = load_clf_to_prediction("model905.joblib", test_data)
+    submission = prediction_to_submission(prediction, test_data)
+    submission.csv("sub1.csv", index=False)
+
+    """
     for target in targets:
         for n_estimator in n_estimators:
 
@@ -177,9 +204,26 @@ if __name__ == "__main__":
             print(f"N_trees = {n_estimator}")
             print(f"Max_rank = {max_rank}")
             print(f"Type estimator: {type_est}")
+            if type_est == "classifier":
+                print(f"Prediction weight: {pred_weight}")
             print("########################################################################")
 
-            extract_train_features(data=sample, target=target, max_rank=max_rank)
-            estimator = RandomForestClassifier(n_estimators=n_estimator, n_jobs=-1)
-            cross_validate(estimator=estimator, data=sample, type_est=type_est, k_folds=1, to_print=True)
+            extract_train_features(data=data, target=target, max_rank=max_rank)
+            if type_est == "classifier":
+                estimator = RandomForestClassifier(n_estimators=n_estimator, n_jobs=-1)
+            elif type_est == "regression":
+                estimator = RandomForestRegressor(n_estimators=n_estimator, n_jobs=-1)
+            else:
+                print("Invalid estimator specified!")
+
+            cross_validate(estimator=estimator,
+                           data=data,
+                           type_est=type_est,
+                           target=target
+                           pred_weight=pred_weight,
+                           k_folds=1,
+                           to_print=True,
+                           save_model=True)
+            
+            """
 
