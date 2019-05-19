@@ -10,12 +10,6 @@ from feature_engineering import simple_imputation
 from feature_engineering import *
 import random
 
-# import finalized training data csv
-train = pd.read_csv("final_training_data.csv")
-# add target
-extract_train_features(train, target="score_rank", max_rank=10)
-
-
 def impute_na(train):
     na_ids = train.isna().any().values
     feature_list = train.columns[na_ids.nonzero()[0]]
@@ -39,23 +33,29 @@ def split_train_test_simple(data, split=4):
     #data = data.loc[:, data.columns != "date_time"]
     print("length original data", len(data))
 
-    train, test = split_train_test(data)
-    X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position"])
-    y_train = train["target"]
-    X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position"])
-    y_test = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
+    training, valid = split_train_test(data)
+
+    # delete booking bool ,... from training data but keep for test data for evaluation
+    not_used_target_info = ["click_bool", "booking_bool", "position", "random_bool"]
+    training = training.loc[:, ~training.columns.isin(not_used_target_info)]
 
     # train_down, number_books, number_clicks, id_list = oversample(train, max_rank=5)
-    print("length train data", len(train))
-    print("length valid data", len(test))
+    print("length train data", len(training))
+    print("length valid data", len(valid))
+
+    X_train = training.loc[:, training.columns != "target"]
+    y_train = training.loc[:, training.columns == "target"]
+
+    X_valid = valid.loc[:, valid.columns != "target"]
+    y_valid = valid
 
     random.seed(42)
     rf = RandomForestRegressor(n_estimators=100)
 
-    rf.fit(X_train, y_train)
-    prediction_rf = rf.predict(X_test)
+    rf.fit(X_train, y_train["target"])
+    prediction_rf = rf.predict(X_valid)
 
-    return y_test, prediction_rf
+    return y_valid, prediction_rf
 
 
 def prediction_to_submission(prediction, y_test):
@@ -93,7 +93,7 @@ def random_split_train_test(data, split=0.75):
     return train,test
 
 
-def cross_validate(estimator, data, k_folds=3, split=4, to_print=False):
+def cross_validate(estimator, data, type_est, k_folds=3, split=4, to_print=False):
     """
     cross-validate over k-folds
     :param estimator: sklearn estimator instance
@@ -121,7 +121,23 @@ def cross_validate(estimator, data, k_folds=3, split=4, to_print=False):
 
         # predict
         print(f"Generating predictions...")
-        prediction = estimator.predict(X_test)
+        if type_est == "classifier":
+            if target == "book":
+                prediction = estimator.predict_proba(X_test)[:, 1]
+            elif target == "score":
+                # calculate weighted sum (probability of class 5 weighs 5x)
+                predict_array = estimator.predict_proba(X_test)
+                # weigh click_book instances double
+                predict_array[:,2] = predict_array[:,2]*3.14
+                prediction = predict_array[:,[1,2]].sum(axis=1)
+            else:
+                print("ERROR. no using classification with score_rank!")
+
+        elif type_est == "regression":
+            prediction = estimator.predict_proba(X_test)
+        else:
+            print("Invalid type_est specified!")
+            return
 
         # score
         score = score_prediction(prediction, y_test, to_print=False)
@@ -144,42 +160,26 @@ def get_sample(data, size):
 
 if __name__ == "__main__":
     pd.options.mode.chained_assignment = None
-    targets = ["book", "score", "score_rank"]
-    n_estimators = [50, 100, 250]
+    targets = ["score"]
+    n_estimators = [250]
     max_rank = 10
-    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_data.csv")
+    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_fixed_data.csv")
     data = impute_na(data)
     sample = get_sample(data=data, size=0.1)
+    type_est = "classifier"
 
     for target in targets:
         for n_estimator in n_estimators:
 
+            print(f"\nCURRENT CONFIGURATION")
+            print("########################################################################")
+            print(f"Target = {target}")
+            print(f"N_trees = {n_estimator}")
+            print(f"Max_rank = {max_rank}")
+            print(f"Type estimator: {type_est}")
+            print("########################################################################")
 
-                data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_data.csv")
-                impute_na(data)
-                extract_train_features(data=data, target=target,max_rank=max_rank)
-                estimator = RandomForestRegressor(n_estimators=n_estimator)
-                cross_validate(estimator=estimator, data=data, k_folds=1, to_print=True)
-
-
-    """
-    # import finalized training data csv
-    train = pd.read_csv("final_training_data.csv")
-    # add target
-    extract_train_features(train, target="book", max_rank=10)
-
-    """
-
-    print(f"\nCURRENT CONFIGURATION")
-    print("########################################################################")
-    print(f"Target = {target}")
-    print(f"N_trees = {n_estimator}")
-    print(f"Max_rank = {max_rank}")
-    print("########################################################################")
-
-    extract_train_features(data=sample, target=target, max_rank=max_rank)
-    estimator = RandomForestRegressor(n_estimators=n_estimator, max_depth=30, n_jobs=-1)
-    cross_validate(estimator=estimator, data=sample, k_folds=1, to_print=True)
-
-
+            extract_train_features(data=sample, target=target, max_rank=max_rank)
+            estimator = RandomForestClassifier(n_estimators=n_estimator, n_jobs=-1)
+            cross_validate(estimator=estimator, data=sample, type_est=type_est, k_folds=1, to_print=True)
 
