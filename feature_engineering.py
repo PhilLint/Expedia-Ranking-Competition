@@ -93,7 +93,7 @@ def create_label(data, three_classes=False):
 #     sub = sub.loc[sub["prop_country_id"].isin(countries),:]
 
 
-def simple_imputation(data, feature_name, type='mean'):
+def simple_imputation(data, feature_name, imp_type='mean'):
     """
     Impute NaN values with mean or median or min of vector
     :param data: np array vector
@@ -101,13 +101,13 @@ def simple_imputation(data, feature_name, type='mean'):
     """
     # find missing ids
     missing_ids = data.loc[data[feature_name].isna(), :].index.values
-    if type == 'mean':
+    if imp_type == 'mean':
         # find mean
         imp_val = data[feature_name].mean()
-    elif type == 'median':
+    elif imp_type == 'median':
         # find median
         imp_val = data[feature_name].median()
-    elif type == 'min':
+    elif imp_type == 'min':
         # find median
         imp_val = data[feature_name].min()
 
@@ -157,7 +157,7 @@ def numerical_imputation(data, target_name, feature_names, imp_type='mean'):
         imputed_feature = reg.predict(imputed.loc[missing_ids, imputed.columns.isin(feature_names)])
     else:
         # apply simple imputation of type mean or median
-        imputed_feature = simple_imputation(data, target_name, type=imp_type)
+        imputed_feature = simple_imputation(data, target_name, imp_type=imp_type)
 
     # fill in imputated values
     data.loc[missing_ids, target_name] = imputed_feature
