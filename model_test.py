@@ -5,12 +5,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.utils import shuffle
 from scoring import score_prediction
-from sklearn.naive_bayes import GaussianNB
-
-# import finalized training data csv
-train = pd.read_csv("final_training_data.csv")
-# add target
-extract_train_features(train, target="book", max_rank=10)
+from feature_engineering import extract_train_features
+from feature_engineering import simple_imputation
 
 
 def impute_na(train):
@@ -23,8 +19,6 @@ def impute_na(train):
 
     not_used_target_info = ["click_bool", "booking_bool", "position", "random_bool"]
     train = train.loc[:, ~train.columns.isin(not_used_target_info)]
-
-impute_na(train)
 
 
 def split_train_test_simple(data, split=4):
@@ -82,7 +76,19 @@ def split_train_test(data, split=4):
     return train, test
 
 
-def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
+def random_split_train_test(data, split=0.75):
+
+    srch_ids = shuffle(data["srch_id"].values)
+    bound = int(len(srch_ids)*split)
+
+    train_ids = srch_ids[:bound]
+    test_ids = srch_ids[bound:]
+
+    train = data.loc[data["srch_id"].isin(train_ids)]
+    test = data.loc[data["srch_id"].isin(test_ids)]
+    return train,test
+
+def cross_validate(estimator, data, k_folds=3, split=4, to_print=False):
     """
     cross-validate over k-folds
     :param estimator: sklearn estimator instance
@@ -99,10 +105,10 @@ def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
         print(f"Fold {i+1} running...")
 
         train, test = split_train_test(data, split)
-        X_train = train.drop(columns=["booking_bool", "click_bool", "position"])
-        y_train = train[target]
-        X_test = test.drop(columns=["booking_bool", "click_bool", "position"])
-        y_test = test
+        X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position"])
+        y_train = train["target"]
+        X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position"])
+        y_test = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
 
         # fit model
         print(f"Fitting model...")
@@ -124,11 +130,26 @@ def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
 
 
 if __name__ == "__main__":
-    target = "booking_bool"
-    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_data.csv")
-    impute_na(data)
-    estimator = RandomForestRegressor(n_estimators=100)
-    cross_validate(estimator=estimator, data=data, target=target, k_folds=1, to_print=True)
+    targets = ["book", "book_click", "score", "score_rank"]
+    n_estimators = [50, 100, 250]
+    max_ranks = [5, 10]
+
+    for target in targets:
+        for n_estimator in n_estimators:
+            for max_rank in max_ranks:
+
+                print(f"\nCURRENT CONFIGURATION")
+                print("########################################################################")
+                print(f"Target = {target}")
+                print(f"N_trees = {n_estimator}")
+                print(f"Max_rank = {max_rank}")
+                print("########################################################################")
+
+                data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_data.csv")
+                impute_na(data)
+                extract_train_features(data=data, target=target,max_rank=max_rank)
+                estimator = RandomForestRegressor(n_estimators=n_estimator)
+                cross_validate(estimator=estimator, data=data, k_folds=1, to_print=True)
 
     """
     # import finalized training data csv
