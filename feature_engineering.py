@@ -58,7 +58,7 @@ def create_target_score(data, id_list, weight_rank=False):
     :return: data with added target score variable
     """
     # get specific ids
-    book_ids, click_ids, nothing_ids = id_list[
+    book_ids, click_ids, nothing_ids = id_list
     # add 5 / 1 / 0 values to dataframe
     data.loc[book_ids, 'target'] = 5
     data.loc[click_ids, 'target'] = 1
