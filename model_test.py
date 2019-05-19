@@ -170,23 +170,16 @@ if __name__ == "__main__":
 
     """
 
-            print(f"\nCURRENT CONFIGURATION")
-            print("########################################################################")
-            print(f"Target = {target}")
-            print(f"N_trees = {n_estimator}")
-            print(f"Max_rank = {max_rank}")
-            print("########################################################################")
+    print(f"\nCURRENT CONFIGURATION")
+    print("########################################################################")
+    print(f"Target = {target}")
+    print(f"N_trees = {n_estimator}")
+    print(f"Max_rank = {max_rank}")
+    print("########################################################################")
 
-            extract_train_features(data=sample, target=target, max_rank=max_rank)
-            estimator = RandomForestRegressor(n_estimators=n_estimator, max_depth=30, n_jobs=-1)
-            cross_validate(estimator=estimator, data=sample, k_folds=1, to_print=True)
+    extract_train_features(data=sample, target=target, max_rank=max_rank)
+    estimator = RandomForestRegressor(n_estimators=n_estimator, max_depth=30, n_jobs=-1)
+    cross_validate(estimator=estimator, data=sample, k_folds=1, to_print=True)
 
 
-            """                            
-            # import finalized training data csv
-            train = pd.read_csv("final_training_data.csv")
-            # add target
-            extract_train_features(train, target="book", max_rank=10)
-            train = impute_na(train)
-            """
 

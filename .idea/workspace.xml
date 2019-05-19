@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5bb38305-64f8-4f92-9587-987dd8d34dd7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/feature_engineering.py" beforeDir="false" afterPath="$PROJECT_DIR$/feature_engineering.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_test.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -18,8 +18,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="237">
-              <caret line="23" column="25" selection-start-line="23" selection-start-column="25" selection-end-line="23" selection-end-column="25" />
+            <state relative-caret-position="242">
+              <caret line="179" column="25" selection-start-line="179" selection-start-column="25" selection-end-line="179" selection-end-column="25" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -66,8 +66,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/feature_engineering.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="36">
-              <caret line="387" column="4" selection-start-line="387" selection-start-column="4" selection-end-line="387" selection-end-column="4" />
+            <state relative-caret-position="3417">
+              <caret line="519" column="68" lean-forward="true" selection-start-line="481" selection-end-line="519" selection-end-column="68" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -119,9 +119,9 @@
         <option value="$PROJECT_DIR$/import2.py" />
         <option value="$PROJECT_DIR$/exploration.py" />
         <option value="$PROJECT_DIR$/NA_handling.py" />
-        <option value="$PROJECT_DIR$/model_test.py" />
         <option value="$PROJECT_DIR$/data_import.py" />
         <option value="$PROJECT_DIR$/feature_engineering.py" />
+        <option value="$PROJECT_DIR$/model_test.py" />
       </list>
     </option>
   </component>
@@ -219,12 +219,12 @@
       <workItem from="1558082258148" duration="1407000" />
       <workItem from="1558083718127" duration="7884000" />
       <workItem from="1558108164688" duration="34590000" />
-      <workItem from="1558258669928" duration="11145000" />
+      <workItem from="1558258669928" duration="12648000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="130444000" />
+    <option name="totallyTimeSpent" value="131947000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="-6" width="1441" height="1013" extended-state="6" />
@@ -332,8 +332,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/model_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="237">
-          <caret line="23" column="25" selection-start-line="23" selection-start-column="25" selection-end-line="23" selection-end-column="25" />
+        <state relative-caret-position="242">
+          <caret line="179" column="25" selection-start-line="179" selection-start-column="25" selection-end-line="179" selection-end-column="25" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -342,8 +342,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/feature_engineering.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36">
-          <caret line="387" column="4" selection-start-line="387" selection-start-column="4" selection-end-line="387" selection-end-column="4" />
+        <state relative-caret-position="3417">
+          <caret line="519" column="68" lean-forward="true" selection-start-line="481" selection-end-line="519" selection-end-column="68" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
