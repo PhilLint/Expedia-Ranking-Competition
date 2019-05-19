@@ -1,14 +1,12 @@
 import numpy as np
 import pandas as pd
-from sklearn.feature_selection import RFE
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.utils import shuffle
-from sklearn import preprocessing
 from scoring import score_prediction
+from feature_engineering import extract_train_features
+from feature_engineering import simple_imputation
 from sklearn.naive_bayes import GaussianNB
 from feature_engineering import *
 import random
@@ -76,7 +74,6 @@ def prediction_to_submission(prediction, y_test):
 
 def split_train_test(data, split=4):
     """
-    split data into train (0.66) and test (0.33) data
 
     split data into train (split-1/split) and test (1/split) data
     :param data: pandas df
@@ -90,7 +87,19 @@ def split_train_test(data, split=4):
     return train, test
 
 
-def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
+def random_split_train_test(data, split=0.75):
+
+    srch_ids = shuffle(data["srch_id"].values)
+    bound = int(len(srch_ids)*split)
+
+    train_ids = srch_ids[:bound]
+    test_ids = srch_ids[bound:]
+
+    train = data.loc[data["srch_id"].isin(train_ids)]
+    test = data.loc[data["srch_id"].isin(test_ids)]
+    return train,test
+
+def cross_validate(estimator, data, k_folds=3, split=4, to_print=False):
     """
     cross-validate over k-folds
     :param estimator: sklearn estimator instance
@@ -105,21 +114,12 @@ def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
     scores = []
     for i in range(k_folds):
         print(f"Fold {i+1} running...")
-        # split data
-
-        if target == "booking_bool":
-            secondary = "click_bool"
-        elif target == "click_bool":
-            secondary = "booking_bool"
 
         train, test = split_train_test(data, split)
-
-        train_cols = [col for col in train.columns if col not in [target, secondary]]
-
-        X_train = train[train_cols]
-        y_train = train[target]
-        X_test = test[train_cols]
-        y_test = test
+        X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position"])
+        y_train = train["target"]
+        X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position"])
+        y_test = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
 
         # fit model
         print(f"Fitting model...")
@@ -135,15 +135,37 @@ def cross_validate(estimator, data, target, k_folds=3, split=4, to_print=False):
         print(f"Fold {i+1} finished!")
 
     if to_print:
-            print(f"Prediction scores for {k_folds} are:\n {scores}")
+            print(f"Prediction scores for {k_folds} folds are:\n {scores}")
     else:
         return scores
 
 
 if __name__ == "__main__":
-    target = "booking_bool"
-    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_data.csv")
-    data = data.sample(n=100_000)
-    data = data.dropna()
-    estimator = RandomForestRegressor(n_estimators=100)
-    cross_validate(estimator=estimator, data=data, target=target, k_folds=3, to_print=True)
+    targets = ["book", "book_click", "score", "score_rank"]
+    n_estimators = [50, 100, 250]
+    max_ranks = [5, 10]
+
+    for target in targets:
+        for n_estimator in n_estimators:
+            for max_rank in max_ranks:
+
+                print(f"\nCURRENT CONFIGURATION")
+                print("########################################################################")
+                print(f"Target = {target}")
+                print(f"N_trees = {n_estimator}")
+                print(f"Max_rank = {max_rank}")
+                print("########################################################################")
+
+                data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_data.csv")
+                impute_na(data)
+                extract_train_features(data=data, target=target,max_rank=max_rank)
+                estimator = RandomForestRegressor(n_estimators=n_estimator)
+                cross_validate(estimator=estimator, data=data, k_folds=1, to_print=True)
+
+    """
+    # import finalized training data csv
+    train = pd.read_csv("final_training_data.csv")
+    # add target
+    extract_train_features(train, target="book", max_rank=10)
+
+    """

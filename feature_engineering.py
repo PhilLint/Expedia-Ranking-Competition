@@ -338,10 +338,7 @@ def find_predictors_for_imputation(data, target_name, threshold=0.15):
     # get correlations of features on the target variable (to be imputed one to find possible predictors for a
     # linear regression
     correlations = data.corr(method="spearman").iloc[0::2][target_name]
-    itself = np.where(correlations == 1.0)[0]
     over_threshold = np.where(correlations > threshold)[0]
-    # if present delete from array
-    over_threshold  = over_threshold[over_threshold != itself]
     predictor_names = correlations.axes[0][over_threshold].tolist()
     return predictor_names
 
