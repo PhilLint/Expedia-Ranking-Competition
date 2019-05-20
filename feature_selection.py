@@ -19,13 +19,13 @@ def feature_selection(data, estimator, n_features=None):
     print(X_train.loc[:, cols].columns)
 
 
-def decreasing_features_select(data, estimator):
+def decreasing_features_select(data, estimator, target):
 
         train, test = split_train_test(data, split=4)
 
-        X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position"])
+        X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool"])
         y_train = train["target"]
-        X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position"])
+        X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool"])
         y_test = test[["target", "srch_id", "prop_id", "booking_bool", "click_bool"]]
 
         n_features = len(X_train.columns)
@@ -37,17 +37,23 @@ def decreasing_features_select(data, estimator):
             cols = selector.support_
             print("Features used: ")
             print(X_train.loc[:, cols].columns)
-            pred = clf_to_predict(estimator, X_test)
+            reduced_train = X_train.loc[:, cols]
+            estimator.fit(reduced_train, y_train)
+            reduced_test = X_test.loc[:, cols]
+            pred = clf_to_predict(estimator, reduced_test, target)
             score_prediction(pred, y_test, to_print=True)
 
 
-def clf_to_predict(estimator, X_test):
-
-    # calculate weighted sum (probability of class 5 weighs 5x)
-    predict_array = estimator.predict_proba(X_test)
-    # weigh click_book instances double
-    predict_array[:,2] = predict_array[:,2]*3
-    prediction = predict_array[:,[1,2]].sum(axis=1)
+def clf_to_predict(estimator, X_test, target):
+    if target == "book":
+        prediction = estimator.predict_proba(X_test)[:, 1]
+    elif target == "score":
+        predict_array = estimator.predict_proba(X_test)
+        predict_array[:, 2] = predict_array[:, 2] * pred_weight
+        prediction = predict_array[:, [1, 2]].sum(axis=1)
+    else:
+        print("ERROR. no using classification with score_rank!")
+        return
 
     return prediction
 
@@ -56,20 +62,22 @@ if __name__ == "main":
     pd.options.mode.chained_assignment = None
     data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_fixed_data.csv")
     impute_na(data)
-    sample = get_sample(data=data, n_ids=0.1)
-    estimator = RandomForestClassifier()
-    targets = ["score"]
+    sample = get_sample(data=data, size=0.1)
+    estimator = RandomForestClassifier(n_estimators=250, n_jobs=-1)
+    targets = ["book", "score"]
     max_rank = 10
+    pred_weight = 3
 
     for target in targets:
         print(f"\nCURRENT CONFIGURATION")
         print("########################################################################")
         print(f"Target = {target}")
         print(f"Max_rank = {max_rank}")
+        print(f"Pred_weight = {pred_weight}")
         print("########################################################################")
 
         extract_train_features(data=sample, target=target, max_rank=max_rank)
-        decreasing_features_select(data=sample, estimator=estimator)
+        decreasing_features_select(data=sample, estimator=estimator, target=target)
 
 
 
