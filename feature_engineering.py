@@ -339,7 +339,11 @@ def find_predictors_for_imputation(data, target_name, threshold=0.15):
     # if present delete from array
     over_threshold = over_threshold[over_threshold != itself]
     predictor_names = correlations.axes[0][over_threshold].tolist()
-    return predictor_names
+
+    if all(isinstance(elem, list) for elem in predictor_names):
+        return predictor_names[0]
+    else:
+        return predictor_names
 
 def add_overall_comp(data, verbose=False):
     """
@@ -530,7 +534,7 @@ def generate_features(data):
     add_norm_features(data, name="price_usd", group_by="prop_country_id")
     # normalize all features
     # apply stand and norm to all of them
-    standardize_all_numerical(data, feature_list=float_features)
+    #standardize_all_numerical(data, feature_list=float_features)
     normalize_all_numerical(data, feature_list=float_features)
 
 def save_final_dataframe_csv(data, name):
@@ -577,6 +581,7 @@ if __name__ == "__main__":
     # training = pd.read_csv(str('./data/') + 'training_set_VU_DM.csv', low_memory=False)
     training = pd.read_csv(str('./data/') + 'training_set_VU_DM.csv', low_memory=False)
     training = training.loc[:, training.columns != "date_time"]
+    training = training.loc[:, training.columns != "gross_bookings_usd"]
 
     training_sample, _,_ ,_ = oversample(training, max_rank=10)
     training_sample.to_csv("oversampled_training.csv")
