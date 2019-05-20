@@ -143,13 +143,14 @@ def cross_validate(estimator, data, type_est, pred_weight, target, k_folds=3, sp
             print("Invalid type_est specified!")
             return
 
-        if save_model:
-            dump(estimator, "model905.joblib")
+
         # score
         score = score_prediction(prediction, y_test, to_print=False)
         scores.append(score)
         print(f"Fold {i+1} finished!")
 
+    if save_model:
+        dump(estimator, "model2.joblib")
     if to_print:
             print(f"Prediction scores for {k_folds} folds are:\n {scores}")
     else:
@@ -168,33 +169,31 @@ def load_clf_to_prediction(filename, X_test):
 
     clf = load(filename)
     predict_array = clf.predict_proba(X_test)
-    # weigh click_book instances double
     predict_array[:, 2] = predict_array[:, 2] * pred_weight
     prediction = predict_array[:, [1, 2]].sum(axis=1)
     return prediction
 
 
+def predict_test_set():
+    test_data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_test_data.csv")
+    test_data = impute_na(test_data)
+    prediction = load_clf_to_prediction("model2.joblib", test_data)
+    submission = prediction_to_submission(prediction, test_data)
+    submission.to_csv("sub1.csv", index=False)
 
 if __name__ == "__main__":
     # constants
     pd.options.mode.chained_assignment = None
-    target = "score"
+    targets = ["score"]
     n_estimators = [300]
     max_rank = 10
     type_est = "classifier"
     pred_weight = 3
 
-    #data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_fixed_data.csv")
-    #data = impute_na(data)
+    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_fixed_data.csv")
+    data = impute_na(data)
     #sample = get_sample(data=data, size=1)
 
-    test_data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_test_data.csv")
-    test_data = impute_na(test_data)
-    prediction = load_clf_to_prediction("model905.joblib", test_data)
-    submission = prediction_to_submission(prediction, test_data)
-    submission.csv("sub1.csv", index=False)
-
-    """
     for target in targets:
         for n_estimator in n_estimators:
 
@@ -219,11 +218,11 @@ if __name__ == "__main__":
             cross_validate(estimator=estimator,
                            data=data,
                            type_est=type_est,
-                           target=target
+                           target=target,
                            pred_weight=pred_weight,
                            k_folds=1,
                            to_print=True,
                            save_model=True)
             
-            """
+
 
