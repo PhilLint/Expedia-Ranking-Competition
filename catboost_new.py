@@ -45,9 +45,9 @@ def train_test_submit(estimator, training, max_rank, target='score', save_model=
         data = training
 
     # split entire dataset
-    # train, test = split_train_test(data, split=4)
+    train, test = split_train_test(data, split=4)
     #oversample training part
-    #train, _, _, _ = oversample(data=train, max_rank=max_rank)
+    train, _, _, _ = oversample(data=train, max_rank=max_rank)
     # cat boost needs both sorted
     train = train.sort_values('srch_id', ascending=True)
     test = test.sort_values('srch_id', ascending=True)
@@ -56,8 +56,8 @@ def train_test_submit(estimator, training, max_rank, target='score', save_model=
     y_train = train["target"]
     queries_train = train['srch_id'].values
 
-    X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool", 'srch_id'])
-    y_test = test["target"]
+    X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool",'srch_id'])
+    y_test = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
     y_test_our_eval = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
     queries_test = test['srch_id'].values
 
