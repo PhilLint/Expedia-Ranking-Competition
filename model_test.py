@@ -181,48 +181,117 @@ def predict_test_set():
     submission = prediction_to_submission(prediction, test_data)
     submission.to_csv("sub1.csv", index=False)
 
+
+def cross_validate(estimator, data, type_est, pred_weight, target, max_rank, k_folds=3, split=4, to_print=False, save_model=False):
+    """
+    cross-validate over k-folds
+    :param estimator: sklearn estimator instance
+    :param data: whole dataset
+    :param type_est: type of estimator used (classifier, regression)
+    :param pred_weight: weighting of booking_bool and click_bool predictions in classification
+    :param k_folds: number of folds to perform
+    :param split: split param for split_train_test funct
+    :param to_print: if True scores are printed and not returned
+    :param save_model: if True save model
+    :return: if to_print=False function returns list with scores
+    """
+
+    scores = []
+    for i in range(k_folds):
+        print(f"Fold {i+1} running...")
+
+        train, test = split_train_test(data, split)
+        # WITHOUT PRIOR DOWNSAMPLING NOW
+        train, _, _, _ = oversample(data=train, max_rank=max_rank)
+        X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool"])
+        y_train = train["target"]
+        X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool"])
+        y_test = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
+
+        # fit model
+        print(f"Fitting model...")
+        estimator.fit(X_train, y_train)
+
+        # predict
+        print(f"Generating predictions...")
+        if type_est == "classifier":
+            if target == "book":
+                prediction = estimator.predict_proba(X_test)[:, 1]
+            elif target == "score":
+                # calculate weighted sum (probability of class 5 weighs 5x)
+                predict_array = estimator.predict_proba(X_test)
+                # weigh click_book instances double
+                predict_array[:, 2] = predict_array[:, 2]*pred_weight
+                prediction = predict_array[:, [1, 2]].sum(axis=1)
+            else:
+                print("ERROR. no using classification with score_rank!")
+                return
+
+        elif type_est == "regression":
+            prediction = estimator.predict(X_test)
+        else:
+            print("Invalid type_est specified!")
+            return
+
+
+        # score
+        score = score_prediction(prediction, y_test, to_print=False)
+        scores.append(score)
+        print(f"Fold {i+1} finished!")
+
+    if save_model:
+        dump(estimator, "model2.joblib")
+    if to_print:
+            print(f"Prediction scores for {k_folds} folds are:\n {scores}")
+    else:
+        return scores
+
+
 if __name__ == "__main__":
     # constants
     pd.options.mode.chained_assignment = None
     targets = ["score"]
-    n_estimators = [300]
-    max_rank = 10
+    n_estimators = [100]
+    max_ranks = [5, 10, 15]
     type_est = "classifier"
     pred_weight = 3
+    k_folds = 3
 
-    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_fixed_data.csv")
+    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_norm_data.csv")
     data = impute_na(data)
-    #sample = get_sample(data=data, size=1)
+    data = get_sample(data=data, size=0.1)
 
     for target in targets:
         for n_estimator in n_estimators:
+            for max_rank in max_ranks:
 
-            print(f"\nCURRENT CONFIGURATION")
-            print("########################################################################")
-            print(f"Target = {target}")
-            print(f"N_trees = {n_estimator}")
-            print(f"Max_rank = {max_rank}")
-            print(f"Type estimator: {type_est}")
-            if type_est == "classifier":
-                print(f"Prediction weight: {pred_weight}")
-            print("########################################################################")
+                print(f"\nCURRENT CONFIGURATION")
+                print("########################################################################")
+                print(f"Target = {target}")
+                print(f"N_trees = {n_estimator}")
+                print(f"Max_rank = {max_rank}")
+                print(f"Type estimator: {type_est}")
+                if type_est == "classifier":
+                    print(f"Prediction weight: {pred_weight}")
+                print("########################################################################")
 
-            extract_train_features(data=data, target=target, max_rank=max_rank)
-            if type_est == "classifier":
-                estimator = RandomForestClassifier(n_estimators=n_estimator, n_jobs=-1)
-            elif type_est == "regression":
-                estimator = RandomForestRegressor(n_estimators=n_estimator, n_jobs=-1)
-            else:
-                print("Invalid estimator specified!")
+                extract_train_features(data=data, target=target, max_rank=max_rank)
+                if type_est == "classifier":
+                    estimator = RandomForestClassifier(n_estimators=n_estimator, n_jobs=-1)
+                elif type_est == "regression":
+                    estimator = RandomForestRegressor(n_estimators=n_estimator, n_jobs=-1)
+                else:
+                    print("Invalid estimator specified!")
 
-            cross_validate(estimator=estimator,
-                           data=data,
-                           type_est=type_est,
-                           target=target,
-                           pred_weight=pred_weight,
-                           k_folds=1,
-                           to_print=True,
-                           save_model=True)
-            
+                cross_validate(estimator=estimator,
+                               data=data,
+                               type_est=type_est,
+                               target=target,
+                               max_rank=max_rank,
+                               pred_weight=pred_weight,
+                               k_folds=k_folds,
+                               to_print=True,
+                               save_model=True)
+
 
 
