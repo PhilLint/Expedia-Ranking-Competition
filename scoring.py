@@ -58,13 +58,6 @@ def calculate_score(submission, y_test, k=K):
     # booked/clicked/nothing and create new df column with corresponding value 5/1/0
 
     print("Matching true booking_bool/click_bool values to submission...")
-    """
-    submission["score"] = [5 if y_test.loc[((y_test["srch_id"] == srch_id) &
-                                            (y_test["prop_id"] == prop_id)), "booking_bool"].any() else
-                           1 if y_test.loc[((y_test["srch_id"] == srch_id) &
-                                            (y_test["prop_id"] == prop_id)), "click_bool"].any() else 0
-                            for (srch_id, prop_id) in list(zip(submission.srch_id, submission.prop_id))]
-    """
     # TEST
     submission["score"] = 0
     print(y_test["click_bool"] == 1)
