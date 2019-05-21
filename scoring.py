@@ -58,11 +58,12 @@ def calculate_score(submission, y_test, k=K):
     # booked/clicked/nothing and create new df column with corresponding value 5/1/0
 
     print("Matching true booking_bool/click_bool values to submission...")
-    submission["score"] = [5 if y_test.loc[((y_test["srch_id"] == srch_id) &
-                                            (y_test["prop_id"] == prop_id)), "booking_bool"].any() else
-                           1 if y_test.loc[((y_test["srch_id"] == srch_id) &
-                                            (y_test["prop_id"] == prop_id)), "click_bool"].any() else 0
-                            for (srch_id, prop_id) in list(zip(submission.srch_id, submission.prop_id))]
+    # TEST
+    submission["score"] = 0
+    print(y_test["click_bool"] == 1)
+    submission.loc[y_test["click_bool"] == 1, "score"] = 1
+    submission.loc[y_test["booking_bool"] == 1, "score"] = 5
+
 
     # given the new submission format, calculate the ndcg for the submission
 
@@ -85,8 +86,8 @@ def prediction_to_submission(prediction, y_test):
     """
 
     y_test["prediction"] = prediction
-    y_test_sorted = y_test.sort_values(["srch_id", "prediction"], ascending=[True, False])
-    return y_test_sorted[["srch_id", "prop_id"]]
+    y_test = y_test.sort_values(["srch_id", "prediction"], ascending=[True, False])
+    return y_test[["srch_id", "prop_id"]]
 
 
 def score_prediction(prediction, y_test, k=K, to_print=False):

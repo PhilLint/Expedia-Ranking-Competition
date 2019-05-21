@@ -333,7 +333,7 @@ if __name__ == "__main__":
 
     data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_norm_data.csv")
     data = impute_na(data)
-    #data = get_sample(data=data, size=0.01)
+    data = get_sample(data=data, size=0.1)
 
     for target in targets:
         for n_estimator in n_estimators:
@@ -357,11 +357,15 @@ if __name__ == "__main__":
                 else:
                     print("Invalid estimator specified!")
 
-                train_test_submit(estimator=estimator,
-                                  train=data,
-                                  max_rank=max_rank,
-                                  pred_weight=pred_weight,
-                                  save_model=True)
+                cross_validate(estimator=estimator,
+                               data=data,
+                               type_est=type_est,
+                               target=target,
+                               max_rank=max_rank,
+                               pred_weight=pred_weight,
+                               k_folds=k_folds,
+                               to_print=True,
+                               save_model=False)
 
 
 
