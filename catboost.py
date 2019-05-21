@@ -8,9 +8,6 @@ import pandas as pd
 from feature_engineering import *
 from collections import Counter
 
-from catboost.datasets import msrank
-train_df, test_df = msrank()
-
 extract_train_features(training, target="score")
 data = training.copy()
 

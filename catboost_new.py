@@ -7,6 +7,7 @@ from sklearn.utils import shuffle
 import pandas as pd
 from feature_engineering import *
 from scoring import *
+from model_test import  *
 from catboost.datasets import msrank
 from collections import Counter
 
@@ -42,10 +43,11 @@ def train_test_submit(estimator, training, max_rank, target='score', save_model=
         data = get_sample(training, size=0.5)
     else:
         data = training
+
     # split entire dataset
-    train, test = split_train_test(data, split=4)
+    # train, test = split_train_test(data, split=4)
     #oversample training part
-    train, _, _, _ = oversample(data=train, max_rank=max_rank)
+    #train, _, _, _ = oversample(data=train, max_rank=max_rank)
     # cat boost needs both sorted
     train = train.sort_values('srch_id', ascending=True)
     test = test.sort_values('srch_id', ascending=True)
@@ -78,8 +80,7 @@ def train_test_submit(estimator, training, max_rank, target='score', save_model=
     )
 
     default_parameters = {
-        'iterations': 1000,
-        'custom_metric': 'NDCG:top=5',
+        'iterations': 500,
         'verbose': True,
         'random_seed': 42,
         'eval_metric': 'NDCG:top=5',
@@ -88,7 +89,7 @@ def train_test_submit(estimator, training, max_rank, target='score', save_model=
 
     # fit model
     print(f"Fitting model...")
-    model = fit_model(loss_function='RMSE', train_pool=train_pool, test_pool=test_pool)
+    model = fit_model(loss_function='RMSE', train_pool=train_pool, test_pool=test_pool, default_parameters=default_parameters)
     print("Done")
 
     predictions = model.predict(X_test)
@@ -118,6 +119,7 @@ if __name__ == "__main__":
     # regression: top10 features, 300 trees, max_rank = 10, target=score_rank, prediction: ~ .312
     # classification: all features, 300 trees, max_rank = 10, target=score, prediction: ~.349
     training = pd.read_csv(str('./data/') + 'training_norm_data.csv', low_memory=False)
+    test = pd.read_csv(str('./data/') + 'test_norm_data.csv', low_memory=False)
 
     data = pd.read_csv()
     data = impute_na(data)
