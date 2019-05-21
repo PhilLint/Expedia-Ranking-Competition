@@ -94,68 +94,6 @@ def random_split_train_test(data, split=0.75):
     return train,test
 
 
-def cross_validate(estimator, data, type_est, pred_weight, target, k_folds=3, split=4, to_print=False, save_model=False):
-    """
-    cross-validate over k-folds
-    :param estimator: sklearn estimator instance
-    :param data: whole dataset
-    :param type_est: type of estimator used (classifier, regression)
-    :param pred_weight: weighting of booking_bool and click_bool predictions in classification
-    :param k_folds: number of folds to perform
-    :param split: split param for split_train_test funct
-    :param to_print: if True scores are printed and not returned
-    :param save_model: if True save model
-    :return: if to_print=False function returns list with scores
-    """
-
-    scores = []
-    for i in range(k_folds):
-        print(f"Fold {i+1} running...")
-
-        train, test = split_train_test(data, split)
-        X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool"])
-        y_train = train["target"]
-        X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool"])
-        y_test = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
-
-        # fit model
-        print(f"Fitting model...")
-        estimator.fit(X_train, y_train)
-
-        # predict
-        print(f"Generating predictions...")
-        if type_est == "classifier":
-            if target == "book":
-                prediction = estimator.predict_proba(X_test)[:, 1]
-            elif target == "score":
-                # calculate weighted sum (probability of class 5 weighs 5x)
-                predict_array = estimator.predict_proba(X_test)
-                # weigh click_book instances double
-                predict_array[:, 2] = predict_array[:, 2]*pred_weight
-                prediction = predict_array[:, [1, 2]].sum(axis=1)
-            else:
-                print("ERROR. no using classification with score_rank!")
-                return
-
-        elif type_est == "regression":
-            prediction = estimator.predict(X_test)
-        else:
-            print("Invalid type_est specified!")
-            return
-
-
-        # score
-        score = score_prediction(prediction, y_test, to_print=False)
-        scores.append(score)
-        print(f"Fold {i+1} finished!")
-
-    if save_model:
-        dump(estimator, "model2.joblib")
-    if to_print:
-            print(f"Prediction scores for {k_folds} folds are:\n {scores}")
-    else:
-        return scores
-
 
 def get_sample(data, size):
     srch_ids = shuffle(data["srch_id"].value_counts().index.tolist())
@@ -247,15 +185,83 @@ def cross_validate(estimator, data, type_est, pred_weight, target, max_rank, k_f
         return scores
 
 
+def test_features(estimator, data, type_est, pred_weight, features, target, max_rank, k_folds=3, split=4, to_print=False, save_model=False):
+    """
+    cross-validate over k-folds
+    :param estimator: sklearn estimator instance
+    :param data: whole dataset
+    :param type_est: type of estimator used (classifier, regression)
+    :param pred_weight: weighting of booking_bool and click_bool predictions in classification
+    :param k_folds: number of folds to perform
+    :param split: split param for split_train_test funct
+    :param to_print: if True scores are printed and not returned
+    :param save_model: if True save model
+    :return: if to_print=False function returns list with scores
+    """
+
+    scores = []
+    for i in range(k_folds):
+        print(f"Fold {i+1} running...")
+
+        train, test = split_train_test(data, split)
+        # WITHOUT PRIOR DOWNSAMPLING NOW
+        train, _, _, _ = oversample(data=train, max_rank=max_rank)
+        X_train = train.loc[:, top10_feat]
+        y_train = train["target"]
+        X_test = test.loc[:, top10_feat]
+        y_test = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
+
+        # fit model
+        print(f"Fitting model...")
+        estimator.fit(X_train, y_train)
+
+        # predict
+        print(f"Generating predictions...")
+        if type_est == "classifier":
+            if target == "book":
+                prediction = estimator.predict_proba(X_test)[:, 1]
+            elif target == "score":
+                # calculate weighted sum (probability of class 5 weighs 5x)
+                predict_array = estimator.predict_proba(X_test)
+                # weigh click_book instances double
+                predict_array[:, 2] = predict_array[:, 2]*pred_weight
+                prediction = predict_array[:, [1, 2]].sum(axis=1)
+            else:
+                print("ERROR. no using classification with score_rank!")
+                return
+
+        elif type_est == "regression":
+            prediction = estimator.predict(X_test)
+        else:
+            print("Invalid type_est specified!")
+            return
+
+
+        # score
+        score = score_prediction(prediction, y_test, to_print=False)
+        scores.append(score)
+        print(f"Fold {i+1} finished!")
+
+    if save_model:
+        dump(estimator, "model2.joblib")
+    if to_print:
+            print(f"Prediction scores for {k_folds} folds are:\n {scores}")
+    else:
+        return scores
+
 if __name__ == "__main__":
     # constants
     pd.options.mode.chained_assignment = None
     targets = ["score"]
     n_estimators = [100]
-    max_ranks = [5, 10, 15]
+    max_ranks = [10]
     type_est = "classifier"
     pred_weight = 3
     k_folds = 3
+    top10_feat = ['prop_location_score1', 'prop_location_score2',
+       'orig_destination_distance', 'price_usd', 'srch_average_loc1',
+       'srch_diff_price', 'srch_diff_locscore1', 'srch_diff_locscore2',
+       'srch_diff_prop_review_score', 'norm_srch_diff_locscore2']
 
     data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_norm_data.csv")
     data = impute_na(data)
@@ -283,15 +289,19 @@ if __name__ == "__main__":
                 else:
                     print("Invalid estimator specified!")
 
-                cross_validate(estimator=estimator,
+                test_features(estimator=estimator,
                                data=data,
                                type_est=type_est,
                                target=target,
+                               features=top10_feat,
                                max_rank=max_rank,
                                pred_weight=pred_weight,
                                k_folds=k_folds,
                                to_print=True,
                                save_model=True)
+
+
+
 
 
 
