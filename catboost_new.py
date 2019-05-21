@@ -1,4 +1,4 @@
-from catboost import CatBoost, Pool
+from catboost import CatBoost
 from copy import deepcopy
 import matplotlib as plt
 import numpy as np
@@ -6,82 +6,12 @@ import os
 from sklearn.utils import shuffle
 import pandas as pd
 from feature_engineering import *
-from collections import Counter
-
+from scoring import *
 from catboost.datasets import msrank
-train_df, test_df = msrank()
-
-extract_train_features(training, target="score")
-data = training.copy()
-
-training = training.sort_values('srch_id', ascending=True)
-
-X_train = training.drop(['target', 'srch_id'], axis=1).values
-y_train = training['target'].values
-queries_train = training['srch_id'].values
-
-X_test = test_df.drop([0, 1], axis=1).values
-y_test = test_df[0].values
-queries_test = test_df[1].values
-
-num_documents = X_train.shape[0]
-X_train.shape[1]
-
 from collections import Counter
-Counter(y_train).items()
 
-max_relevance = np.max(y_train)
-y_train /= max_relevance
-y_test /= max_relevance
 
-num_queries = np.unique(queries_train).shape[0]
-num_queries
-
-train = Pool(
-    data=X_train,
-    label=y_train,
-    group_id=queries_train
-)
-
-test = Pool(
-    data=X_test,
-    label=y_test,
-    group_id=queries_test
-)
-
-"""
-data_dir = os.path.join('..', 'msrank')
-train_file = os.path.join(data_dir, 'train.csv')
-test_file = os.path.join(data_dir, 'test.csv')
-
-train_df.to_csv(train_file, index=False)
-test_df.to_csv(test_file, index=False)
-
-description_file = os.path.join(data_dir, 'dataset.cd')
-with open(description_file, 'w') as f:
-    f.write('0\tLabel\n')
-    f.write('1\tQueryId\n')
-
-Pool(data=train_file, column_description=description_file, delimiter=',')
-"""
-
-default_parameters = {
-    'iterations': 2000,
-    'custom_metric': ['NDCG:top=5'],
-    'verbose': True,
-    'random_seed': 42,
-}
-
-parameters = {}
-
-def get_sample(data, size):
-    srch_ids = shuffle(data["srch_id"].value_counts().index.tolist())
-    bound = int(len(srch_ids) * size)
-    sample_ids = srch_ids[:bound]
-    sample = data.loc[data["srch_id"].isin(sample_ids)]
-    return sample
-
-def fit_model(loss_function, train_pool, test_pool, additional_params=None):
+def fit_model(loss_function, train_pool, test_pool, default_parameters, additional_params=None):
     parameters = deepcopy(default_parameters)
     parameters['loss_function'] = loss_function
     parameters['train_dir'] = loss_function
@@ -90,7 +20,7 @@ def fit_model(loss_function, train_pool, test_pool, additional_params=None):
         parameters.update(additional_params)
 
     model = CatBoost(parameters)
-    model.fit(train_pool, eval_set=test_pool, plot=True)
+    model.fit(train_pool, eval_set=test_pool, plot=False)
 
     return model
 
@@ -103,16 +33,20 @@ def get_info_datasets(X_train, queries_train, y_train):
     num_target = Counter(y_train).items()
     return [num_documents, num_var, num_queries, num_target]
 
-def train_test_submit(estimator, training, max_rank, pred_weight, save_model=False, sample=False):
+def train_test_submit(estimator, training, max_rank, target='score', save_model=False, sample=False):
 
+    # get target value
+    extract_train_features(training, target=target)
+    # for testing purposes use smaller dataset
     if sample:
-        data = get_sample(training, size=0.1)
+        data = get_sample(training, size=0.5)
     else:
         data = training
-
+    # split entire dataset
     train, test = split_train_test(data, split=4)
+    #oversample training part
     train, _, _, _ = oversample(data=train, max_rank=max_rank)
-
+    # cat boost needs both sorted
     train = train.sort_values('srch_id', ascending=True)
     test = test.sort_values('srch_id', ascending=True)
 
@@ -122,6 +56,7 @@ def train_test_submit(estimator, training, max_rank, pred_weight, save_model=Fal
 
     X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool", 'srch_id'])
     y_test = test["target"]
+    y_test_our_eval = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
     queries_test = test['srch_id'].values
 
     train_list = get_info_datasets(X_train, queries_train, y_train)
@@ -143,28 +78,23 @@ def train_test_submit(estimator, training, max_rank, pred_weight, save_model=Fal
     )
 
     default_parameters = {
-        'iterations': 200,
-        'custom_metric': ['NDCG:top=5'],
+        'iterations': 1000,
+        'custom_metric': 'NDCG:top=5',
         'verbose': True,
         'random_seed': 42,
+        'eval_metric': 'NDCG:top=5',
+        'use_best_model' : True
     }
+
     # fit model
     print(f"Fitting model...")
     model = fit_model(loss_function='RMSE', train_pool=train_pool, test_pool=test_pool)
     print("Done")
 
-    if save_model:
-        dump(estimator, "model3.joblib")
-    print("Loading test data...")
-    test_data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/test_norm_data.csv")
-    print("Done")
-    print("Predicting...")
-    test_data = impute_na(test_data)
-    predict_array = estimator.predict_proba(test_data)
-    predict_array[:, 2] = predict_array[:, 2] * pred_weight
-    prediction = predict_array[:, [1, 2]].sum(axis=1)
-    print("Formatting to submission...")
-    submission = prediction_to_submission(prediction, test_data)
+    predictions = model.predict(X_test)
+    score = score_prediction(predictions, y_test_our_eval, to_print=False)
+
+    submission = prediction_to_submission(predictions, test)
     submission.to_csv("sub2.csv", index=False)
     print("Done")
 
