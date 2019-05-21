@@ -253,11 +253,11 @@ if __name__ == "__main__":
     # constants
     pd.options.mode.chained_assignment = None
     targets = ["score"]
-    n_estimators = [100]
+    n_estimators = [300]
     max_ranks = [10]
     type_est = "classifier"
     pred_weight = 3
-    k_folds = 3
+    k_folds = 1
     top10_feat = ['prop_location_score1', 'prop_location_score2',
        'orig_destination_distance', 'price_usd', 'srch_average_loc1',
        'srch_diff_price', 'srch_diff_locscore1', 'srch_diff_locscore2',
