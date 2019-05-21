@@ -11,7 +11,7 @@ from scoring import score_prediction
 
 def feature_selection(data, estimator, n_features=None):
 
-    X_train = data.drop(columns=["target", "booking_bool", "click_bool", "position"])
+    X_train = data.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool"])
     y_train = data["target"]
     selector = RFE(estimator=estimator, n_features_to_select=n_features)
     selector.fit(X_train, y_train)
@@ -63,8 +63,8 @@ if __name__ == "main":
     data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/final_training_fixed_data.csv")
     impute_na(data)
     sample = get_sample(data=data, size=0.1)
-    estimator = RandomForestClassifier(n_estimators=250, n_jobs=-1)
-    targets = ["book", "score"]
+    estimator = RandomForestClassifier(n_estimators=100, n_jobs=-1)
+    targets = ["score"]
     max_rank = 10
     pred_weight = 3
 
@@ -77,7 +77,8 @@ if __name__ == "main":
         print("########################################################################")
 
         extract_train_features(data=sample, target=target, max_rank=max_rank)
-        decreasing_features_select(data=sample, estimator=estimator, target=target)
+        #decreasing_features_select(data=sample, estimator=estimator, target=target)
+        feature_selection(data=sample, estimator=estimator, n_features=10)
 
 
 
