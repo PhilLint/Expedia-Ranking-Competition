@@ -91,9 +91,9 @@ def oversample(data, max_rank=None, print_desc=False):
         if print_desc:
             print("Number of observations: " + str(len(new_training)) + " ||  number of bookings: " + str(number_books) +
                   " ||  number of clicks: " + str(number_clicks))
-        return new_data, number_book, number_clicks, id_list
+        return [new_data, number_book, number_clicks, id_list]
     else:
-        return data, _, _, _
+        return [data]
 
 
 if __name__ == "__main__":

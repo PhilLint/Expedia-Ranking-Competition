@@ -35,7 +35,7 @@ def get_info_datasets(X_train, queries_train, y_train):
     return [num_documents, num_var, num_queries, num_target]
 
 
-def train_test(training, n_estimators, max_rank, target='score', save_model=False, sample=False, size=0.5):
+def train_test(training, n_estimators, max_rank, target='score', save_model=False, sample=False, size=0.5, pairwise=None):
     # get target value
     extract_train_features(training, target=target)
     # for testing purposes use smaller dataset
@@ -47,7 +47,7 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
     # split entire dataset
     train, test = split_train_test(data, split=4)
     # oversample training part
-    train, _, _, _ = oversample(data=train, max_rank=max_rank)
+    train = oversample(data=train, max_rank=max_rank)[0]
     # cat boost needs both sorted
     train = train.sort_values('srch_id', ascending=True)
     test = test.sort_values('srch_id', ascending=True)
@@ -81,7 +81,7 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
 
     default_parameters = {
         'iterations': n_estimators,
-        'verbose': 100,
+        'verbose': 10,
         'random_seed': 42,
         'eval_metric': 'NDCG:top=5',
         'use_best_model': True
@@ -89,12 +89,18 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
 
     # fit model
     print(f"Fitting model...")
-    if target == 'score' or target == 'score_rank':
-        model = fit_model(loss_function='RMSE', train_pool=train_pool, test_pool=test_pool,
+    if pairwise is not None:
+        model = fit_model(loss_function=pairwise, train_pool=train_pool, test_pool=test_pool,
                           default_parameters=default_parameters)
-    elif target == 'book' or target == 'book_clck':
-        model = fit_model(loss_function='Logloss', train_pool=train_pool, test_pool=test_pool,
-                          default_parameters=default_parameters)
+    else:
+        if target == 'score' or target == 'score_rank' or target == 'book_click':
+            model = fit_model(loss_function='RMSE', train_pool=train_pool, test_pool=test_pool,
+                              default_parameters=default_parameters)
+        elif target == 'book':
+            model = fit_model(loss_function='Logloss', train_pool=train_pool, test_pool=test_pool,
+                              default_parameters=default_parameters)
+
+
     print("Done")
 
     predictions = model.predict(X_test)
@@ -107,8 +113,8 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
 if __name__ == "__main__":
     # constants
     pd.options.mode.chained_assignment = None
-    targets = ["score", 'score_rank', 'book', 'book_click']
-    n_estimators = [1000]
+    targets = ['book', 'book_click']
+    n_estimators = 500
     max_ranks = [None, 10, 5]
     k_folds = 1
     scores = []
@@ -136,4 +142,4 @@ if __name__ == "__main__":
                        max_rank=max_rank,
                        target=target,
                        n_estimators=n_estimators,
-                        save_model = False))
+                        save_model = False,pairwise="PairLogit"))
