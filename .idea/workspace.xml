@@ -2,13 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5bb38305-64f8-4f92-9587-987dd8d34dd7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/Expedia-Ranking-Competition.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Expedia-Ranking-Competition.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RMSE/catboost_training.json" beforeDir="false" afterPath="$PROJECT_DIR$/RMSE/catboost_training.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RMSE/learn/events.out.tfevents" beforeDir="false" afterPath="$PROJECT_DIR$/RMSE/learn/events.out.tfevents" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RMSE/test/events.out.tfevents" beforeDir="false" afterPath="$PROJECT_DIR$/RMSE/test/events.out.tfevents" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catboost.py" beforeDir="false" afterPath="$PROJECT_DIR$/catboost.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catboost_new.py" beforeDir="false" afterPath="$PROJECT_DIR$/catboost_new.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,13 +30,13 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/catboost_new.py">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/feature_engineering.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+            <state relative-caret-position="198">
+              <caret line="558" column="37" lean-forward="true" selection-start-line="558" selection-start-column="37" selection-end-line="558" selection-end-column="37" />
               <folding>
-                <element signature="e#0#35#0" expanded="true" />
+                <element signature="e#0#39#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -48,10 +45,21 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/catboost.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1">
-              <caret line="152" column="16" lean-forward="true" selection-start-line="152" selection-end-line="153" />
+            <state relative-caret-position="-18">
               <folding>
                 <element signature="e#0#35#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/catboost_new.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="157">
+              <caret line="43" column="20" selection-start-line="43" selection-end-line="44" />
+              <folding>
+                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -60,8 +68,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="299">
-              <caret line="207" column="24" lean-forward="true" selection-start-line="207" selection-end-line="208" />
+            <state relative-caret-position="282">
+              <caret line="206" column="45" selection-start-line="206" selection-end-line="207" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -72,8 +80,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scoring.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-271">
-              <caret line="78" column="4" selection-end-line="114" />
+            <state relative-caret-position="596">
+              <caret line="77" lean-forward="true" selection-start-line="45" selection-end-line="77" />
             </state>
           </provider>
         </entry>
@@ -113,8 +121,8 @@
         <option value="$PROJECT_DIR$/NA_handling.py" />
         <option value="$PROJECT_DIR$/data_import.py" />
         <option value="$PROJECT_DIR$/model_test.py" />
-        <option value="$PROJECT_DIR$/feature_engineering.py" />
         <option value="$PROJECT_DIR$/catboost.py" />
+        <option value="$PROJECT_DIR$/feature_engineering.py" />
         <option value="$PROJECT_DIR$/catboost_new.py" />
       </list>
     </option>
@@ -263,7 +271,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Terminal" order="11" weight="0.3295583" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.3286119" />
       <window_info active="true" anchor="bottom" id="Python Console" order="12" visible="true" weight="0.3045326" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -322,8 +330,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/catboost.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1">
-          <caret line="152" column="16" lean-forward="true" selection-start-line="152" selection-end-line="153" />
+        <state relative-caret-position="-18">
           <folding>
             <element signature="e#0#35#0" expanded="true" />
           </folding>
@@ -336,16 +343,6 @@
           <caret line="74" column="6" selection-start-line="74" selection-start-column="6" selection-end-line="74" selection-end-column="6" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/feature_engineering.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="843">
-          <caret line="568" column="6" lean-forward="true" selection-start-line="568" selection-start-column="6" selection-end-line="568" selection-end-column="6" />
-          <folding>
-            <element signature="e#0#39#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -372,8 +369,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/model_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="207" column="24" lean-forward="true" selection-start-line="207" selection-end-line="208" />
+        <state relative-caret-position="282">
+          <caret line="206" column="45" selection-start-line="206" selection-end-line="207" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -382,17 +379,27 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scoring.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-271">
-          <caret line="78" column="4" selection-end-line="114" />
+        <state relative-caret-position="596">
+          <caret line="77" lean-forward="true" selection-start-line="45" selection-end-line="77" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/feature_engineering.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="558" column="37" lean-forward="true" selection-start-line="558" selection-start-column="37" selection-end-line="558" selection-end-column="37" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/catboost_new.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+        <state relative-caret-position="157">
+          <caret line="43" column="20" selection-start-line="43" selection-end-line="44" />
           <folding>
-            <element signature="e#0#35#0" expanded="true" />
+            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>

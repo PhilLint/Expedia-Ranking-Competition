@@ -1,4 +1,4 @@
-from catboost import CatBoost
+from catboost import CatBoost, Pool
 from copy import deepcopy
 import matplotlib as plt
 import numpy as np
@@ -20,7 +20,11 @@ def fit_model(loss_function, train_pool, test_pool, default_parameters, addition
     if additional_params is not None:
         parameters.update(additional_params)
 
-    model = CatBoost(parameters)
+    if estimator == 'regr':
+        model = CatBoostRegressor(parameters)
+    elif estimator == 'clas':
+        model = CatBoostClassifier(parameters)
+
     model.fit(train_pool, eval_set=test_pool, plot=False)
 
     return model
@@ -34,7 +38,7 @@ def get_info_datasets(X_train, queries_train, y_train):
     num_target = Counter(y_train).items()
     return [num_documents, num_var, num_queries, num_target]
 
-def train_test_submit(estimator, training, max_rank, target='score', save_model=False, sample=False):
+def train_test_submit(training, max_rank, target='score', save_model=False, sample=False):
 
     # get target value
     extract_train_features(training, target=target)
@@ -57,7 +61,7 @@ def train_test_submit(estimator, training, max_rank, target='score', save_model=
     queries_train = train['srch_id'].values
 
     X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool",'srch_id'])
-    y_test = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
+    y_test = test["target"]
     y_test_our_eval = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
     queries_test = test['srch_id'].values
 
@@ -80,8 +84,8 @@ def train_test_submit(estimator, training, max_rank, target='score', save_model=
     )
 
     default_parameters = {
-        'iterations': 500,
-        'verbose': True,
+        'iterations': 1000,
+        'verbose': False,
         'random_seed': 42,
         'eval_metric': 'NDCG:top=5',
         'use_best_model' : True
@@ -89,15 +93,18 @@ def train_test_submit(estimator, training, max_rank, target='score', save_model=
 
     # fit model
     print(f"Fitting model...")
-    model = fit_model(loss_function='RMSE', train_pool=train_pool, test_pool=test_pool, default_parameters=default_parameters)
+    if target == 'score' or target == 'score_rank':
+        model = fit_model(loss_function='RMSE', estimator='regr', train_pool=train_pool, test_pool=test_pool, default_parameters=default_parameters)
+    elif target == 'book' or target == 'book_click':
+        model = fit_model(loss_function='RMSE', estimator='clas', train_pool=train_pool, test_pool=test_pool, default_parameters=default_parameters)
+
     print("Done")
 
     predictions = model.predict(X_test)
+    cat_score = model.best_score_
     score = score_prediction(predictions, y_test_our_eval, to_print=False)
 
-    submission = prediction_to_submission(predictions, test)
-    submission.to_csv("sub2.csv", index=False)
-    print("Done")
+    return score, cat_score
 
 
 if __name__ == "__main__":
