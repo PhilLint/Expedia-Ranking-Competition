@@ -36,9 +36,12 @@ def filter_nothing_instances(data, nothing_ids=None, max_rank=None):
         nothing_ids = data[(data['booking_bool'] == 0) & (data['click_bool'] == 0)].index.values
         sampled_nothing_ids = data.loc[nothing_ids, :].sort_values("position", ascending=False).groupby('srch_id').head(max_rank).index.values
     # if random choice: choose 0.3 of nothing instances
-    else:
+    elif max_rank == 'sample':
         n_sample = np.random.choice(nothing_ids.tolist(), floor(0.3*len(nothing_ids)), False)
         sampled_nothing_ids = data.loc[n_sample].index.values
+    elif max_rank is None:
+        sampled_nothing_ids = data[(data['booking_bool'] == 0) & (data['click_bool'] == 0)].index.values
+
 
     return sampled_nothing_ids
 
@@ -79,15 +82,18 @@ def oversample(data, max_rank=None, print_desc=False):
     :param data: panda array of training data
     :return: smaller panda array based on training data
     """
-    id_list, number_book, number_clicks = get_id_list(data, max_rank=max_rank)
-    book_ids, click_ids, filtered_nothing_ids = id_list
-    # filter out the dataset
-    new_data = pd.concat([data[data.index.isin(book_ids)], data[data.index.isin(click_ids)],  data[data.index.isin(filtered_nothing_ids)]])
-    # print descriptives
-    if print_desc:
-        print("Number of observations: " + str(len(new_training)) + " ||  number of bookings: " + str(number_books) +
-              " ||  number of clicks: " + str(number_clicks))
-    return new_data, number_book, number_clicks, id_list
+    if max_rank is not None:
+        id_list, number_book, number_clicks = get_id_list(data, max_rank=max_rank)
+        book_ids, click_ids, filtered_nothing_ids = id_list
+        # filter out the dataset
+        new_data = pd.concat([data[data.index.isin(book_ids)], data[data.index.isin(click_ids)],  data[data.index.isin(filtered_nothing_ids)]])
+        # print descriptives
+        if print_desc:
+            print("Number of observations: " + str(len(new_training)) + " ||  number of bookings: " + str(number_books) +
+                  " ||  number of clicks: " + str(number_clicks))
+        return new_data, number_book, number_clicks, id_list
+    else:
+        return data, _, _, _
 
 
 if __name__ == "__main__":

@@ -60,7 +60,7 @@ def calculate_score(submission, y_test, k=K):
     print("Matching true booking_bool/click_bool values to submission...")
     # TEST
     submission["score"] = 0
-    print(y_test["click_bool"] == 1)
+    # print(y_test["click_bool"] == 1)
     submission.loc[y_test["click_bool"] == 1, "score"] = 1
     submission.loc[y_test["booking_bool"] == 1, "score"] = 5
 
