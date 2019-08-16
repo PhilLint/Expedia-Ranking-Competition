@@ -7,7 +7,7 @@ Solutions and implementation from [Frederic Chamot](https://github.com/maragori)
 The respective Kaggle competition is found [here](https://www.kaggle.com/c/expedia-hotel-recommendations#description).
 ## Copyright
 
-Copyright © 2019 Philipp Lintl
+Copyright © 2019 Frederic Chamot, Luisa Ebner and Philipp Lintl
 
 <p align=“justify”>
 This project is distributed under the <a href="LICENSE">MIT license</a>.  
