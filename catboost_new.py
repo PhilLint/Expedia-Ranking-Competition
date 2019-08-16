@@ -37,6 +37,9 @@ def get_info_datasets(X_train, queries_train, y_train):
 
 def train_test(training, n_estimators, max_rank, target='score', save_model=False, sample=False, size=0.5, pairwise=None):
     # get target value
+    training = impute_na(training)
+    test = impute_na(test)
+
     extract_train_features(training, target=target)
     # for testing purposes use smaller dataset
     if sample:
@@ -47,7 +50,9 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
     # split entire dataset
     train, test = split_train_test(data, split=4)
     # oversample training part
-    train = oversample(data=train, max_rank=max_rank)[0]
+    train = training
+
+    train = oversample(data=train, max_rank=10)[0]
     # cat boost needs both sorted
     train = train.sort_values('srch_id', ascending=True)
     test = test.sort_values('srch_id', ascending=True)
@@ -56,7 +61,7 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
     y_train = train["target"]
     queries_train = train['srch_id'].values
 
-    X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool", 'srch_id'])
+    X_test = test.drop(columns=["random_bool", 'srch_id'])
     y_test = test["target"]
     y_test_our_eval = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
     queries_test = test['srch_id'].values
@@ -74,9 +79,9 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
     )
 
     test_pool = Pool(
-        data=X_test,
-        label=y_test,
-        group_id=queries_test
+        data=X_train,
+        label=y_train,
+        group_id=queries_train
     )
 
     default_parameters = {
@@ -93,11 +98,11 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
         model = fit_model(loss_function=pairwise, train_pool=train_pool, test_pool=test_pool,
                           default_parameters=default_parameters)
     else:
-        if target == 'score' or target == 'score_rank' or target == 'book_click':
+        if target == 'score' or target == 'score_rank':
             model = fit_model(loss_function='RMSE', train_pool=train_pool, test_pool=test_pool,
                               default_parameters=default_parameters)
-        elif target == 'book':
-            model = fit_model(loss_function='Logloss', train_pool=train_pool, test_pool=test_pool,
+        elif target == 'book' or target == 'book_click':
+            model = fit_model(loss_function='PairLogitPairwise', train_pool=train_pool, test_pool=test_pool,
                               default_parameters=default_parameters)
 
 
@@ -107,23 +112,26 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
     cat_score = model.best_score_
     score = score_prediction(predictions, y_test_our_eval, to_print=False)
 
+    submisison = prediction_to_submission(predictions, test)
+    submisison.to_csv("book_Pairlogitwise_rank10_2000.csv", index=False)
     return [score, cat_score]
 
 
 if __name__ == "__main__":
     # constants
     pd.options.mode.chained_assignment = None
-    targets = ['book', 'book_click']
+    targets = ['score', 'book']
+    pairwise = ['YetiRankPairwise']
     n_estimators = 500
-    max_ranks = [None, 10, 5]
+    max_ranks = [10, 5]
     k_folds = 1
     scores = []
     # data = test_norm
     # regression: top10 features, 300 trees, max_rank = 10, target=score, prediction: ~ 0.31
     # regression: top10 features, 300 trees, max_rank = 10, target=score_rank, prediction: ~ .312
     # classification: all features, 300 trees, max_rank = 10, target=score, prediction: ~.349
-    # training = pd.read_csv(str('./data/') + 'training_norm_data.csv', low_memory=False)
-    # test = pd.read_csv(str('./data/') + 'test_norm_data.csv', low_memory=False)
+    training = pd.read_csv(str('./data/') + 'training_norm_data.csv', low_memory=False)
+    test = pd.read_csv(str('./data/') + 'test_norm_data.csv', low_memory=False)
 
     # data = pd.read_csv()
     # data = impute_na(data)
@@ -131,15 +139,21 @@ if __name__ == "__main__":
 
     for target in targets:
         for max_rank in max_ranks:
-            print(f"\nCURRENT CONFIGURATION")
-            print("########################################################################")
-            print(f"Target = {target}")
-            print(f"N_trees = {n_estimators}")
-            print(f"Max_rank = {max_rank}")
-            print("########################################################################")
+            for pair in pairwise:
+                print(f"\nCURRENT CONFIGURATION")
+                print("########################################################################")
+                print(f"Target = {target}")
+                print(f"N_trees = {n_estimators}")
+                print(f"Max_rank = {max_rank}")
+                print("########################################################################")
 
-            scores.append(train_test(training=training,
-                       max_rank=max_rank,
-                       target=target,
-                       n_estimators=n_estimators,
-                        save_model = False,pairwise="PairLogit"))
+                scores.append(train_test(training=training,
+                           max_rank=max_rank,
+                           target=target,
+                           n_estimators=n_estimators,
+                            save_model = False,
+                            pairwise=pair))
+
+with open('yetipairwise.txt', 'w') as f:
+    for item in scores:
+        f.write("%s\n" % item )
