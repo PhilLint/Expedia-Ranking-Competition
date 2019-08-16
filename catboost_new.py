@@ -50,9 +50,8 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
     # split entire dataset
     train, test = split_train_test(data, split=4)
     # oversample training part
-    train = training
 
-    train = oversample(data=train, max_rank=10)[0]
+    train = oversample(data=train, max_rank=max_rank)[0]
     # cat boost needs both sorted
     train = train.sort_values('srch_id', ascending=True)
     test = test.sort_values('srch_id', ascending=True)
@@ -96,7 +95,7 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
     print(f"Fitting model...")
     if pairwise is not None:
         model = fit_model(loss_function=pairwise, train_pool=train_pool, test_pool=test_pool,
-                          default_parameters=default_parameters)
+                   default_parameters=default_parameters)
     else:
         if target == 'score' or target == 'score_rank':
             model = fit_model(loss_function='RMSE', train_pool=train_pool, test_pool=test_pool,
@@ -116,22 +115,55 @@ def train_test(training, n_estimators, max_rank, target='score', save_model=Fals
     submisison.to_csv("book_Pairlogitwise_rank10_2000.csv", index=False)
     return [score, cat_score]
 
+def extract_scores(scores):
+    our_scores = []
+    cat_scores = []
+    for i in range(len(scores)):
+        our_scores.append(scores[i][0])
+        cat_scores.append(scores[i][1]['validation_0']['NDCG:top=5;type=Base'])
+    return our_scores, cat_scores
+
+ours, cats = extract_scores(scores)
+both = [ours, cats]
+d = {'our_score': ours, 'cat_score': cats,
+     'target': ['score', 'score', 'score', 'score_rank', 'score_rank', 'score_rank', 'book', 'book', 'book'],
+     'max_rank': [0, 5, 10, 0, 5, 10, 0, 5, 10]}
+d = pd.DataFrame(d)
+groups = d.groupby('target')
+fig, ax = plt.subplots()
+ax.margins(0.05)
+for name, group in groups:
+    ax.plot(group.our_score, group.cat_score, marker="o", label=name)
+ax.legend()
+ax.show()
+
+
+mkr_dict = {'score': 'x', 'score_rank': '+', 'book': 'o'}
+plt.scatter(d.our_score, d.cat_score,
+                c = 'target',
+                s = 'max_rank')
+plt.legend()
+plt.show()
+
+
 
 if __name__ == "__main__":
     # constants
     pd.options.mode.chained_assignment = None
-    targets = ['score', 'book']
-    pairwise = ['YetiRankPairwise']
-    n_estimators = 500
-    max_ranks = [10, 5]
+
+
+    targets = ['book_click']
+    n_estimators = 1000
+    max_ranks = [None, 10, 5]
     k_folds = 1
-    scores = []
     # data = test_norm
     # regression: top10 features, 300 trees, max_rank = 10, target=score, prediction: ~ 0.31
     # regression: top10 features, 300 trees, max_rank = 10, target=score_rank, prediction: ~ .312
     # classification: all features, 300 trees, max_rank = 10, target=score, prediction: ~.349
     training = pd.read_csv(str('./data/') + 'training_norm_data.csv', low_memory=False)
     test = pd.read_csv(str('./data/') + 'test_norm_data.csv', low_memory=False)
+
+    # test = pd.read_csv(str('./data/') + 'test_norm_data.csv', low_memory=False)
 
     # data = pd.read_csv()
     # data = impute_na(data)

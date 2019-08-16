@@ -9,3 +9,7 @@ final_training_data.csv
 *.tsv
 submission_sample.csv
 submission_sample.csv
+*.json
+*.pyc
+*.pyc
+*.pyc

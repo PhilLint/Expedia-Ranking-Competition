@@ -153,31 +153,40 @@ def predict_test_set():
     submission.to_csv("sub1.csv", index=False)
 
 
-def train_test_submit(estimator, train, max_rank, pred_weight, save_model=False):
+def train_test_submit(estimator, train, max_rank, features=None, save_model=False):
 
     # WITHOUT PRIOR DOWNSAMPLING NOW
-    train, _, _, _ = oversample(data=train, max_rank=max_rank)
-    X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position"])
-    y_train = train["target"]
+    train = oversample(data=train, max_rank=max_rank)[0]
+    if not features:
+        X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position"])
+        y_train = train["target"]
+    else:
+        X_train = train.loc[:, features]
+        y_train = train["target"]
 
+
+    print(X_train.columns)
     # fit model
     print(f"Fitting model...")
     estimator.fit(X_train, y_train)
     print("Done")
 
     if save_model:
-        dump(estimator, "model3.joblib")
+        dump(estimator, "model_class_1000.joblib")
     print("Loading test data...")
-    test_data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/test_norm_data.csv")
+    test_data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/test_no_norm_data.csv")
     print("Done")
     print("Predicting...")
     test_data = impute_na(test_data)
-    predict_array = estimator.predict_proba(test_data)
-    predict_array[:, 2] = predict_array[:, 2] * pred_weight
-    prediction = predict_array[:, [1, 2]].sum(axis=1)
+    if features:
+        test_data_subset = test_data.loc[:, features]
+        prediction = estimator.predict(test_data_subset)
+    else:
+        prediction = estimator.predict(test_data)
+
     print("Formatting to submission...")
     submission = prediction_to_submission(prediction, test_data)
-    submission.to_csv("sub2.csv", index=False)
+    submission.to_csv("sub_class_top10_1000.csv", index=False)
     print("Done")
 
 
@@ -201,7 +210,7 @@ def cross_validate(estimator, data, type_est, pred_weight, target, max_rank, k_f
 
         train, test = split_train_test(data, split)
         # WITHOUT PRIOR DOWNSAMPLING NOW
-        train, _, _, _ = oversample(data=train, max_rank=max_rank)
+        train = oversample(data=train, max_rank=max_rank)[0]
         X_train = train.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool"])
         y_train = train["target"]
         X_test = test.drop(columns=["target", "booking_bool", "click_bool", "position", "random_bool"])
@@ -216,7 +225,7 @@ def cross_validate(estimator, data, type_est, pred_weight, target, max_rank, k_f
         if type_est == "classifier":
             if target == "book":
                 prediction = estimator.predict_proba(X_test)[:, 1]
-            elif target == "score":
+            elif target == "score" or target == "book_click":
                 # calculate weighted sum (probability of class 5 weighs 5x)
                 predict_array = estimator.predict_proba(X_test)
                 # weigh click_book instances double
@@ -266,11 +275,11 @@ def test_features(estimator, data, type_est, pred_weight, features, target, max_
 
         train, test = split_train_test(data, split)
         # WITHOUT PRIOR DOWNSAMPLING NOW
-        train, _, _, _ = oversample(data=train, max_rank=max_rank)
+        train = oversample(data=train, max_rank=max_rank)[0]
         X_train = train.loc[:, top10_feat]
         y_train = train["target"]
         X_test = test.loc[:, top10_feat]
-        y_test = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool"]]
+        y_test = test.loc[:, ["srch_id", "prop_id", "booking_bool", "click_bool", "random_bool"]]
 
         # fit model
         print(f"Fitting model...")
@@ -287,7 +296,14 @@ def test_features(estimator, data, type_est, pred_weight, features, target, max_
                 # weigh click_book instances double
                 predict_array[:, 2] = predict_array[:, 2]*pred_weight
                 prediction = predict_array[:, [1, 2]].sum(axis=1)
+            elif target == "book_click":
+                # calculate weighted sum (probability of class 5 weighs 5x)
+                predict_array = estimator.predict_proba(X_test)
+                # weigh click_book instances double
+                predict_array[:, 2] = predict_array[:, 2] * pred_weight
+                prediction = predict_array[:, [1, 2]].sum(axis=1)
             else:
+                print(target)
                 print("ERROR. no using classification with score_rank!")
                 return
 
@@ -304,7 +320,7 @@ def test_features(estimator, data, type_est, pred_weight, features, target, max_
         print(f"Fold {i+1} finished!")
 
     if save_model:
-        dump(estimator, "model2.joblib")
+        dump(estimator, "model_reg.joblib")
     if to_print:
             print(f"Prediction scores for {k_folds} folds are:\n {scores}")
     else:
@@ -314,61 +330,104 @@ def test_features(estimator, data, type_est, pred_weight, features, target, max_
 if __name__ == "__main__":
     # constants
     pd.options.mode.chained_assignment = None
-    targets = ["score"]
-    n_estimators = [300]
-    max_ranks = [10]
+    targets = ["book_click"]
+    max_ranks = [8]
     type_est = "classifier"
-    pred_weight = 3
+    pred_weight = 3.5
     k_folds = 1
-    top10_feat = ['prop_location_score1', 'prop_location_score2',
-       'orig_destination_distance', 'price_usd', 'srch_average_loc1',
-       'srch_diff_price', 'srch_diff_locscore1', 'srch_diff_locscore2',
-       'srch_diff_prop_review_score', 'norm_srch_diff_locscore2']
+    to_print = True
+    top10_feat = ["prop_location_score1", "prop_location_score2", "orig_destination_distance", "price_usd",
+                  "srch_average_loc1", "srch_diff_price", "srch_diff_locscore1", "srch_diff_locscore2",
+                  "srch_diff_prop_review_score", "norm_srch_diff_locscore2"]
+
+    # RF HYPERPARAMETERS
+    n_estimator = 1000
+    max_features = ["sqrt"]
+    max_depths = [None]
+    min_samples_leafs = [1]
+
+    print("Reading in training data...")
+    full_data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_norm_data.csv")
+    print("Imputing NaN...")
+    data = impute_na(full_data)
+    #data = get_sample(data=data, size=0.1)
+
+
+    for max_rank in max_ranks:
+        for target in targets:
+            print(f"\nCURRENT CONFIGURATION")
+            print("########################################################################")
+            print("DATA PARAMETERS:")
+            print(f"Target = {target}")
+            print(f"Max_rank = {max_rank}")
+            if type_est == "classifier":
+                print(f"Prediction weight: {pred_weight}")
+            print("########################################################################")
+
+            extract_train_features(data=data,
+                                   target=target,
+                                   max_rank=max_rank)
+            if type_est == "classifier":
+                estimator = RandomForestClassifier(n_estimators=n_estimator, n_jobs=-1)
+            elif type_est == "regression":
+                estimator = RandomForestRegressor(n_estimators=n_estimator, n_jobs=-1)
+            else:
+                print("Invalid estimator specified!")
+
+            train_test_submit(estimator=estimator,
+                              train=data,
+                              max_rank=max_rank,
+                              save_model=False)
+            """
+            cross_validate(estimator=estimator,
+                           data=data,
+                           max_rank=max_rank,
+                           type_est=type_est,
+                           target=target,
+                           k_folds=k_folds,
+                           split=4,
+                           pred_weight=pred_weight,
+                           to_print=to_print,
+                           save_model=True)
+    
+       extract_train_features(data=data,
+                              target=target,
+                              max_rank=max_rank)
+
+       estimator = RandomForestRegressor(n_estimators=1000, n_jobs=-1)
+       test_features(estimator=estimator,
+                     data=data,
+                     type_est=type_est,
+                     pred_weight=pred_weight,
+                     features=top10_feat,
+                     target=target,
+                     max_rank=max_rank,
+                     to_print=to_print)
+
+       train_test_submit(estimator=estimator,
+                         train=data,
+                         max_rank=max_rank,
+                         save_model=False)
+       """
 
     # data = test_norm
     # regression: top10 features, 300 trees, max_rank = 10, target=score, prediction: ~ 0.31
     # regression: top10 features, 300 trees, max_rank = 10, target=score_rank, prediction: ~ .312
     # classification: all features, 300 trees, max_rank = 10, target=score, prediction: ~.349
 
+    # max_rank log
+    # classification: all features, 350 trees, max_rank = 5, target=score, prediction: ~ .341
+    # classification: all features, 350 trees, max_rank = 10, target=score, prediction: ~ .345
+    # classification: all features, 350 trees, max_rank = 15, target=score, prediction: ~ .346
+    # classification: all features, 350 trees, max_rank = 20, target=score, prediction: ~ .350
+    # classification: all features, 350 trees, max_rank = None, target=score, prediction: ~ .348
 
-    data = pd.read_csv("C:/Users/Frede/Dropbox/Master/DM/Assignments/2/DM2/training_norm_data.csv")
-    data = impute_na(data)
-    data = get_sample(data=data, size=0.1)
-
-    for target in targets:
-        for n_estimator in n_estimators:
-            for max_rank in max_ranks:
-
-                print(f"\nCURRENT CONFIGURATION")
-                print("########################################################################")
-                print(f"Target = {target}")
-                print(f"N_trees = {n_estimator}")
-                print(f"Max_rank = {max_rank}")
-                print(f"Type estimator: {type_est}")
-                if type_est == "classifier":
-                    print(f"Prediction weight: {pred_weight}")
-                print("########################################################################")
-
-                extract_train_features(data=data, target=target, max_rank=max_rank)
-                if type_est == "classifier":
-                    estimator = RandomForestClassifier(n_estimators=n_estimator, n_jobs=-1)
-                elif type_est == "regression":
-                    estimator = RandomForestRegressor(n_estimators=n_estimator, n_jobs=-1)
-                else:
-                    print("Invalid estimator specified!")
-
-                cross_validate(estimator=estimator,
-                               data=data,
-                               type_est=type_est,
-                               target=target,
-                               max_rank=max_rank,
-                               pred_weight=pred_weight,
-                               k_folds=k_folds,
-                               to_print=True,
-                               save_model=False)
-
-
-
+    # pred_weight log
+    # classification: all features, 350 trees, max_rank = 20, target=score, pred_weight = 3, prediction: ~ .3445
+    # classification: all features, 350 trees, max_rank = 20, target=score, pred_weight = 3.5, prediction: ~ .3461
+    # classification: all features, 350 trees, max_rank = 20, target=score, pred_weight = 4, prediction: ~ .3484
+    # classification: all features, 350 trees, max_rank = 20, target=score, pred_weight = 4.5, prediction: ~ .3414
+    # classification: all features, 350 trees, max_rank = 20, target=score, pred_weight = 5, prediction: ~ .34577
 
 
 
